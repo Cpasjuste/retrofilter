@@ -1,44 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
-using System.Xml.Linq;
+﻿using System.Windows;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 
 namespace RetroFilter
 {
-    /// <summary>
-    /// Logique d'interaction pour MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        GameList gameList;
+
         public MainWindow()
         {
             InitializeComponent();
-            mameGrid.Visibility = System.Windows.Visibility.Hidden;
+            mameGrid.Visibility = Visibility.Hidden;
         }
 
-        private void btnLoadDat_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void btnLoadDat_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Mame DAT (*.dat)|*.dat|All files (*.*)|*.*";
             if (openFileDialog.ShowDialog() == true)
             {
-                GameList gameList = new GameList();
+                gameList = new GameList();
                 if (gameList.Load(openFileDialog.FileName))
                 {
-                    mameGrid.ItemsSource = gameList.games;
-                    LoadDat.Visibility = System.Windows.Visibility.Hidden;
-                    mameGrid.Visibility = System.Windows.Visibility.Visible;
+                    mameGrid.ItemsSource = gameList.dataFile.gamesCollection;
+                    LoadDat.Visibility = Visibility.Hidden;
+                    mameGrid.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    LoadDat.Visibility = System.Windows.Visibility.Visible;
-                    mameGrid.Visibility = System.Windows.Visibility.Hidden;
+                    this.ShowMessageAsync("Oups", "Something went wrong with this file...");
+                    LoadDat.Visibility = Visibility.Visible;
+                    mameGrid.Visibility = Visibility.Hidden;
+                }
+            }
+        }
+
+        private void btnSaveDat_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            //dialog.Filter = "Mame DAT (*.dat)|*.dat|All files (*.*)|*.*";
+            if (dialog.ShowDialog() == true)
+            {
+                if (!gameList.Save(dialog.FileName))
+                {
+                    this.ShowMessageAsync("Oups", "Something went wrong with this file...");
                 }
             }
         }

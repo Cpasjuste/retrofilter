@@ -1,8 +1,24 @@
 ﻿
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace RetroFilter
 {
+    [System.Serializable()]
+    public class Rom
+    {
+        [XmlAttribute(AttributeName = "name")]
+        public string Name { get; set; }
+
+        [XmlAttribute(AttributeName = "merge")]
+        public string Merge { get; set; }
+
+        [XmlAttribute(AttributeName = "size")]
+        public string Size { get; set; }
+
+        [XmlAttribute(AttributeName = "crc")]
+        public string Crc { get; set; }
+    }
 
     [System.Serializable()]
     public class Driver
@@ -32,9 +48,10 @@ namespace RetroFilter
         [XmlAttribute(AttributeName = "cloneof")]
         public string CloneOf { get; set; }
 
+        [XmlIgnore]
         public bool IsClone { get; set; }
 
-        [XmlElement(ElementName = "driver")]
-        public Driver Driver { get; set; }
+        [XmlElement(ElementName = "rom")]
+        public List<Rom> Rom { get; set; }
     }
 }

@@ -17,7 +17,7 @@
                     <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Load DAT" />
                 </StackPanel>
             </Button>
-            <Button>
+            <Button Click="btnSaveDat_Click">
                 <StackPanel Orientation="Horizontal">
                     <iconPacks:PackIconModern Width="20" Height="20" Kind="Save" />
                     <TextBlock Margin="4 2 0 0" VerticalAlignment="Center" Text="Save DAT" />
