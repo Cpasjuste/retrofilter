@@ -1,0 +1,50 @@
+﻿<Controls:MetroWindow x:Class="RetroFilter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:dgx="clr-namespace:DataGridExtensions;assembly=DataGridExtensions"
+        mc:Ignorable="d"
+        Title="RetroFilter" Height="450" Width="640" ResizeMode="CanResizeWithGrip">
+
+    <Controls:MetroWindow.RightWindowCommands>
+        <Controls:WindowCommands>
+            <Button Click="btnLoadDat_Click">
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconModern Width="20" Height="20" Kind="PageUpload" />
+                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Load DAT" />
+                </StackPanel>
+            </Button>
+            <Button>
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconModern Width="20" Height="20" Kind="Save" />
+                    <TextBlock Margin="4 2 0 0" VerticalAlignment="Center" Text="Save DAT" />
+                </StackPanel>
+            </Button>
+            <Button>
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconModern Width="20" Height="20" Kind="Beer" />
+                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Support" />
+                </StackPanel>
+            </Button>
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
+    
+    <Grid>
+        <DataGrid ItemsSource="{Binding}" Name="mameGrid" AutoGenerateColumns="True" CanUserAddRows="False" dgx:DataGridFilter.IsAutoFilterEnabled="True">
+        <DataGrid.ColumnHeaderStyle>
+            <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}">
+            </Style>
+        </DataGrid.ColumnHeaderStyle>
+    </DataGrid>
+
+    <Button Name="LoadDat" Click="btnLoadDat_Click">
+        <StackPanel Orientation="Horizontal">
+            <iconPacks:PackIconModern Width="20" Height="20" Kind="PageUpload" />
+            <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Load DAT" />
+        </StackPanel>
+    </Button>
+    </Grid>
+</Controls:MetroWindow>
