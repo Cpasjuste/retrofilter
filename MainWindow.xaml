@@ -23,7 +23,7 @@
                     <TextBlock Margin="4 2 0 0" VerticalAlignment="Center" Text="Save DAT" />
                 </StackPanel>
             </Button>
-            <Button>
+            <Button Click="btnSupport_Click">
                 <StackPanel Orientation="Horizontal">
                     <iconPacks:PackIconModern Width="20" Height="20" Kind="Beer" />
                     <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Support" />

@@ -39,15 +39,23 @@ namespace RetroFilter
 
         private void btnSaveDat_Click(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog dialog = new SaveFileDialog();
-            //dialog.Filter = "Mame DAT (*.dat)|*.dat|All files (*.*)|*.*";
-            if (dialog.ShowDialog() == true)
+            if (gameList != null && gameList.dataFile != null && gameList.dataFile.Games.Count > 0)
             {
-                if (!gameList.Save(dialog.FileName))
+                SaveFileDialog dialog = new SaveFileDialog();
+                dialog.Filter = "Mame DAT (*.dat)|*.dat|All files (*.*)|*.*";
+                if (dialog.ShowDialog() == true)
                 {
-                    this.ShowMessageAsync("Oups", "Something went wrong with this file...");
+                    if (!gameList.Save(dialog.FileName))
+                    {
+                        this.ShowMessageAsync("Oups", "Something went wrong with this file...");
+                    }
                 }
             }
+        }
+
+        private void btnSupport_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://www.paypal.me/cpasjuste");
         }
     }
 }

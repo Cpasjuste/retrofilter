@@ -34,7 +34,7 @@ namespace RetroFilter
             }
 
             // parse embedded catver, convert it to dictionnary for faster search
-            string catver = GetEmbeddedResource("catver.ini");
+            string catver = GetEmbeddedResource("catver_0.214.ini");
             string[] catverLines = catver.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
             Dictionary<string, string> catverDic = catverLines.Select(item => item.Split('=')).ToDictionary(s => s[0], s => s[1]);
             foreach (Game game in dataFile.Games)
