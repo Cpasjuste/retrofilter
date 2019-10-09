@@ -42,7 +42,7 @@
                 </DataGrid.ColumnHeaderStyle>
             </DataGrid>
         </StackPanel>
-        <Button Name="loadDat" Click="btnLoadDat_Click" Visibility="Visible">
+        <Button Name="loadDat" Click="btnLoadDat_Click" Visibility="Hidden">
             <StackPanel Orientation="Horizontal">
                 <iconPacks:PackIconModern Width="20" Height="20" Kind="PageUpload" />
                 <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Load DAT" />

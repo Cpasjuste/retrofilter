@@ -1,9 +1,11 @@
-﻿using System;
+﻿using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
+using DataGridExtensions;
+using System;
 
 namespace RetroFilter
 {
@@ -18,27 +20,25 @@ namespace RetroFilter
             loadDat.Visibility = Visibility.Visible;
             headerPanel.Visibility = Visibility.Hidden;
             gamesGrid.Visibility = Visibility.Hidden;
-            gamesGrid.AutoGeneratingColumn += mameGrid_AutoGeneratingColumn;
-            gamesGrid.UnloadingRow += mameGrid_UnLoadingRow;
+            gamesGrid.AutoGeneratingColumn += OnAutoGeneratingColumn;
+            gamesGrid.LoadingRow += OnLoadingRow;
         }
 
-        void mameGrid_UnLoadingRow(object sender, DataGridRowEventArgs e)
+        void OnLoadingRow(object sender, DataGridRowEventArgs e)
         {
             headerText.Content = gameList.dataFile.Header.Name + ": "
                         + gameList.dataFile.Header.Description + " ("
-                        + gameList.dataFile.gamesCollection.Count + " games)";
+                        + gamesGrid.Items.Count + " games)";
         }
 
-        void mameGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
+        void OnAutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
             string name = e.Column.Header.ToString();
-
             // hide not handled columns (DataFile child classes)
             if (name == "Driver" || name == "BiosSets" || name == "Roms" || name == "DeviceRefs" || name == "Samples")
             {
                 e.Column.Visibility = Visibility.Hidden;
             }
-
             // hide non used columns
             if (gameList.dataFile.Games[0].GetType().Name != "MameGame")
             {
@@ -58,8 +58,6 @@ namespace RetroFilter
                 gameList = new GameList();
                 if (gameList.Load(openFileDialog.FileName))
                 {
-                    headerText.Content = gameList.dataFile.Header.Name + ": "
-                        + gameList.dataFile.Header.Description + " (" + gameList.dataFile.Games.Count + " games)";
                     gamesGrid.ItemsSource = gameList.dataFile.gamesCollection;
                     loadDat.Visibility = Visibility.Hidden;
                     headerPanel.Visibility = Visibility.Visible;
