@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
 
@@ -19,38 +20,38 @@ namespace RetroFilter
                 StreamReader reader = new StreamReader(path);
                 dataFile = (DataFile)serializer.Deserialize(reader);
                 reader.Close();
-                if (dataFile.Games.Count <= 0)
-                {
-                    Console.WriteLine("Could not parse gamelist: no games found");
-                    return false;
-                }
-
-                // parse embedded catver
-                // TODO: too slow
-                string catver = GetEmbeddedResource("catver.ini");
-                List<string> catverLines = new List<string>(catver.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries));
-                foreach (Game game in dataFile.Games)
-                {
-                    string genre = catverLines.Find(x => x.StartsWith(game.Name + "="));
-                    // if genre was not found, try to find parent genre
-                    if (string.IsNullOrEmpty(genre) && game.IsClone)
-                    {
-                        genre = catverLines.Find(x => x.StartsWith(game.CloneOf + "="));
-                    }
-                    if (!string.IsNullOrEmpty(genre))
-                    {
-                        game.Genre = genre.Split('=')[1];
-                    }
-                }
-
-                // finally, create ObservableCollection for datagrid
-                dataFile.gamesCollection = new ObservableCollection<Game>(dataFile.Games);
             }
             catch
             {
                 Console.WriteLine("Could not parse gamelist: " + path);
                 return false;
             }
+
+            if (dataFile.Games.Count <= 0)
+            {
+                Console.WriteLine("Could not parse gamelist: no games found");
+                return false;
+            }
+
+            // parse embedded catver, convert it to dictionnary for faster search
+            string catver = GetEmbeddedResource("catver.ini");
+            string[] catverLines = catver.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            Dictionary<string, string> catverDic = catverLines.Select(item => item.Split('=')).ToDictionary(s => s[0], s => s[1]);
+            foreach (Game game in dataFile.Games)
+            {
+                if (!catverDic.TryGetValue(game.Name, out string genre) && game.IsClone)
+                {
+                    catverDic.TryGetValue(game.CloneOf, out genre);
+                }
+
+                if (!string.IsNullOrEmpty(genre))
+                {
+                    game.Genre = genre;
+                }
+            }
+
+            // finally, create ObservableCollection for datagrid
+            dataFile.gamesCollection = new ObservableCollection<Game>(dataFile.Games);
 
             return true;
         }
