@@ -4,34 +4,25 @@ using System.Xml.Serialization;
 
 namespace RetroFilter
 {
+    // xml elements names: "machine"
     [System.Serializable()]
-    public class Rom
-    {
-        [XmlAttribute(AttributeName = "name")]
-        public string Name { get; set; }
+    public class MameGame : Game { }
 
-        [XmlAttribute(AttributeName = "merge")]
-        public string Merge { get; set; }
-
-        [XmlAttribute(AttributeName = "size")]
-        public string Size { get; set; }
-
-        [XmlAttribute(AttributeName = "crc")]
-        public string Crc { get; set; }
-    }
-
-    [System.Serializable()]
-    public class Driver
-    {
-        [XmlAttribute(AttributeName = "status")]
-        public string Status { get; set; }
-    }
-
+    // xml elements names: "game" (libretro dats, emulationstation dats...)
     [System.Serializable()]
     public class Game
     {
         [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
+
+        [XmlAttribute(AttributeName = "sourcefile")]
+        public string Sourcefile { get; set; }
+
+        [XmlAttribute(AttributeName = "isdevice")]
+        public string IsDevice { get; set; }
+
+        [XmlAttribute(AttributeName = "runnable")]
+        public string Runnable { get; set; }
 
         [XmlElement(ElementName = "description")]
         public string Description { get; set; }
@@ -51,7 +42,72 @@ namespace RetroFilter
         [XmlIgnore]
         public bool IsClone { get; set; }
 
+        [XmlElement(ElementName = "biosset")]
+        public List<BiosSet> BiosSets { get; set; }
+
         [XmlElement(ElementName = "rom")]
-        public List<Rom> Rom { get; set; }
+        public List<Rom> Roms { get; set; }
+
+        [XmlElement(ElementName = "device_ref")]
+        public List<DeviceRef> DeviceRefs { get; set; }
+
+        [XmlElement(ElementName = "sample")]
+        public List<Sample> Samples { get; set; }
+
+        [XmlElement(ElementName = "driver")]
+        public Driver Driver { get; set; }
+    }
+
+    [System.Serializable()]
+    public class Rom
+    {
+        [XmlAttribute(AttributeName = "name")]
+        public string Name { get; set; }
+
+        [XmlAttribute(AttributeName = "merge")]
+        public string Merge { get; set; }
+
+        [XmlAttribute(AttributeName = "size")]
+        public string Size { get; set; }
+
+        [XmlAttribute(AttributeName = "crc")]
+        public string Crc { get; set; }
+
+        [XmlAttribute(AttributeName = "sha1")]
+        public string Sha1 { get; set; }
+
+        [XmlAttribute(AttributeName = "status")]
+        public string Status { get; set; }
+    }
+
+    [System.Serializable()]
+    public class BiosSet
+    {
+        [XmlAttribute(AttributeName = "name")]
+        public string Name { get; set; }
+
+        [XmlAttribute(AttributeName = "description")]
+        public string Description { get; set; }
+    }
+
+    [System.Serializable()]
+    public class DeviceRef
+    {
+        [XmlAttribute(AttributeName = "name")]
+        public string Name { get; set; }
+    }
+
+    [System.Serializable()]
+    public class Sample
+    {
+        [XmlAttribute(AttributeName = "name")]
+        public string Name { get; set; }
+    }
+
+    [System.Serializable()]
+    public class Driver
+    {
+        [XmlAttribute(AttributeName = "status")]
+        public string Status { get; set; }
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace RetroFilter
@@ -11,16 +10,6 @@ namespace RetroFilter
     {
         public DataFile dataFile;
 
-        [Serializable()]
-        [XmlRoot("datafile", Namespace = "", IsNullable = false)]
-        public class DataFile
-        {
-            [XmlElement(ElementName = "game")]
-            public List<Game> Game { get; set; }
-            [XmlIgnore]
-            public ObservableCollection<Game> gamesCollection { get; set; }
-        }
-
         public bool Load(string path)
         {
             try
@@ -28,8 +17,13 @@ namespace RetroFilter
                 XmlSerializer serializer = new XmlSerializer(typeof(DataFile));
                 StreamReader reader = new StreamReader(path);
                 dataFile = (DataFile)serializer.Deserialize(reader);
-                dataFile.gamesCollection = new ObservableCollection<Game>(dataFile.Game);
+                dataFile.gamesCollection = new ObservableCollection<Game>(dataFile.Games);
                 reader.Close();
+                if (dataFile.Games.Count <= 0)
+                {
+                    Console.WriteLine("Could not parse gamelist: no games found");
+                    return false;
+                }
             }
             catch
             {
@@ -46,6 +40,7 @@ namespace RetroFilter
             {
                 TextWriter writer = new StreamWriter(path);
                 XmlSerializer serializer = new XmlSerializer(typeof(DataFile));
+                dataFile.Games = new List<Game>(dataFile.gamesCollection);
                 serializer.Serialize(writer, dataFile);
                 writer.Close();
             }
