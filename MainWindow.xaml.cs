@@ -15,8 +15,18 @@ namespace RetroFilter
         {
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             InitializeComponent();
-            mameGrid.Visibility = Visibility.Hidden;
-            mameGrid.AutoGeneratingColumn += mameGrid_AutoGeneratingColumn;
+            loadDat.Visibility = Visibility.Visible;
+            headerPanel.Visibility = Visibility.Hidden;
+            gamesGrid.Visibility = Visibility.Hidden;
+            gamesGrid.AutoGeneratingColumn += mameGrid_AutoGeneratingColumn;
+            gamesGrid.UnloadingRow += mameGrid_UnLoadingRow;
+        }
+
+        void mameGrid_UnLoadingRow(object sender, DataGridRowEventArgs e)
+        {
+            headerText.Content = gameList.dataFile.Header.Name + ": "
+                        + gameList.dataFile.Header.Description + " ("
+                        + gameList.dataFile.gamesCollection.Count + " games)";
         }
 
         void mameGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
@@ -48,15 +58,19 @@ namespace RetroFilter
                 gameList = new GameList();
                 if (gameList.Load(openFileDialog.FileName))
                 {
-                    mameGrid.ItemsSource = gameList.dataFile.gamesCollection;
-                    LoadDat.Visibility = Visibility.Hidden;
-                    mameGrid.Visibility = Visibility.Visible;
+                    headerText.Content = gameList.dataFile.Header.Name + ": "
+                        + gameList.dataFile.Header.Description + " (" + gameList.dataFile.Games.Count + " games)";
+                    gamesGrid.ItemsSource = gameList.dataFile.gamesCollection;
+                    loadDat.Visibility = Visibility.Hidden;
+                    headerPanel.Visibility = Visibility.Visible;
+                    gamesGrid.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     this.ShowMessageAsync("Oups", "Something went wrong with this file...");
-                    LoadDat.Visibility = Visibility.Visible;
-                    mameGrid.Visibility = Visibility.Hidden;
+                    loadDat.Visibility = Visibility.Visible;
+                    headerPanel.Visibility = Visibility.Hidden;
+                    gamesGrid.Visibility = Visibility.Hidden;
                 }
             }
         }

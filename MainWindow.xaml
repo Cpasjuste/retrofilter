@@ -31,20 +31,23 @@
             </Button>
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
-    
     <Grid>
-        <DataGrid ItemsSource="{Binding}" Name="mameGrid" AutoGenerateColumns="True" CanUserAddRows="False" dgx:DataGridFilter.IsAutoFilterEnabled="True">
-        <DataGrid.ColumnHeaderStyle>
-            <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}">
-            </Style>
-        </DataGrid.ColumnHeaderStyle>
-    </DataGrid>
-
-    <Button Name="LoadDat" Click="btnLoadDat_Click">
-        <StackPanel Orientation="Horizontal">
-            <iconPacks:PackIconModern Width="20" Height="20" Kind="PageUpload" />
-            <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Load DAT" />
+        <StackPanel Orientation="Vertical">
+            <StackPanel Name="headerPanel" Orientation="Horizontal" Height="Auto">
+                <Label Name="headerText" Margin="8 8 0 8" Content="Name: ..., Desc...." Foreground="Orange"/>
+            </StackPanel>
+            <DataGrid Name="gamesGrid" ItemsSource="{Binding}" AutoGenerateColumns="True" CanUserAddRows="False" dgx:DataGridFilter.IsAutoFilterEnabled="True" MaxHeight="1080">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}"/>
+                </DataGrid.ColumnHeaderStyle>
+            </DataGrid>
         </StackPanel>
-    </Button>
+        <Button Name="loadDat" Click="btnLoadDat_Click" Visibility="Visible">
+            <StackPanel Orientation="Horizontal">
+                <iconPacks:PackIconModern Width="20" Height="20" Kind="PageUpload" />
+                <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Load DAT" />
+            </StackPanel>
+        </Button>
     </Grid>
+
 </Controls:MetroWindow>
