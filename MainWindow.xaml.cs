@@ -45,6 +45,13 @@ namespace RetroFilter
                         + gamesGrid.Items.Count + " games)";
         }
 
+        void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            headerText.Content = dataFile.Header.Name + ": "
+                        + dataFile.Header.Description + " ("
+                        + gamesGrid.Items.Count + " games)";
+        }
+
         void OnAutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
             string name = e.Column.Header.ToString();
@@ -147,6 +154,7 @@ namespace RetroFilter
 
             // finally, create ObservableCollection for datagrid
             dataFile.gamesCollection = new ObservableCollection<Game>(dataFile.Games);
+            dataFile.gamesCollection.CollectionChanged += OnCollectionChanged;
 
             return true;
         }
