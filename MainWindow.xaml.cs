@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
+using System.Windows.Controls;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
@@ -14,6 +16,27 @@ namespace RetroFilter
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             InitializeComponent();
             mameGrid.Visibility = Visibility.Hidden;
+            mameGrid.AutoGeneratingColumn += mameGrid_AutoGeneratingColumn;
+        }
+
+        void mameGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
+        {
+            string name = e.Column.Header.ToString();
+
+            // hide not handled columns (DataFile child classes)
+            if (name == "Driver" || name == "BiosSets" || name == "Roms" || name == "DeviceRefs" || name == "Samples")
+            {
+                e.Column.Visibility = Visibility.Hidden;
+            }
+
+            // hide non used columns
+            if (gameList.dataFile.Games[0].GetType().Name != "MameGame")
+            {
+                if (name == "SourceFile" || name == "IsDevice" || name == "Runnable")
+                {
+                    e.Column.Visibility = Visibility.Hidden;
+                }
+            }
         }
 
         private void btnLoadDat_Click(object sender, RoutedEventArgs e)

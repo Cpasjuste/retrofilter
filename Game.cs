@@ -16,7 +16,7 @@ namespace RetroFilter
         public string Name { get; set; }
 
         [XmlAttribute(AttributeName = "sourcefile")]
-        public string Sourcefile { get; set; }
+        public string SourceFile { get; set; }
 
         [XmlAttribute(AttributeName = "isdevice")]
         public string IsDevice { get; set; }
