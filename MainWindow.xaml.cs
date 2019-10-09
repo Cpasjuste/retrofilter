@@ -11,6 +11,7 @@ namespace RetroFilter
 
         public MainWindow()
         {
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
             InitializeComponent();
             mameGrid.Visibility = Visibility.Hidden;
         }
