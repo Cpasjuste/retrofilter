@@ -32,16 +32,20 @@
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
     <Grid>
-        <StackPanel Orientation="Vertical">
-            <StackPanel Name="headerPanel" Orientation="Horizontal" Height="Auto">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Name="headerPanel" Grid.Row="0" Orientation="Horizontal" Height="42">
                 <Label Name="headerText" Margin="8 8 0 8" Content="Name: ..., Desc...." Foreground="Orange"/>
             </StackPanel>
-            <DataGrid Name="gamesGrid" ItemsSource="{Binding}" AutoGenerateColumns="True" CanUserAddRows="False" dgx:DataGridFilter.IsAutoFilterEnabled="True" MaxHeight="1080">
+            <DataGrid Name="gamesGrid" Grid.Row="1"  ItemsSource="{Binding}" AutoGenerateColumns="True" CanUserAddRows="False" dgx:DataGridFilter.IsAutoFilterEnabled="True">
                 <DataGrid.ColumnHeaderStyle>
                     <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}"/>
                 </DataGrid.ColumnHeaderStyle>
             </DataGrid>
-        </StackPanel>
+        </Grid>
         <Button Name="loadDat" Click="btnLoadDat_Click" Visibility="Hidden">
             <StackPanel Orientation="Horizontal">
                 <iconPacks:PackIconModern Width="20" Height="20" Kind="PageUpload" />
