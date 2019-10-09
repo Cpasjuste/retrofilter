@@ -33,6 +33,9 @@ namespace RetroFilter
         [XmlElement(ElementName = "manufacturer")]
         public string Manufacturer { get; set; }
 
+        [XmlElement(ElementName = "genre")]
+        public string Genre { get; set; }
+
         [XmlAttribute(AttributeName = "romof")]
         public string RomOf { get; set; }
 
@@ -40,7 +43,7 @@ namespace RetroFilter
         public string CloneOf { get; set; }
 
         [XmlIgnore]
-        public bool IsClone { get; set; }
+        public bool IsClone { get { return !string.IsNullOrEmpty(CloneOf); } set { } }
 
         [XmlElement(ElementName = "biosset")]
         public List<BiosSet> BiosSets { get; set; }
