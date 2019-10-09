@@ -6,12 +6,18 @@ using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 using DataGridExtensions;
 using System;
+using System.Xml.Serialization;
+using System.Reflection;
+using System.IO;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace RetroFilter
 {
     public partial class MainWindow : MetroWindow
     {
-        GameList gameList;
+        public DataFile dataFile;
 
         public MainWindow()
         {
@@ -22,12 +28,20 @@ namespace RetroFilter
             gamesGrid.Visibility = Visibility.Hidden;
             gamesGrid.AutoGeneratingColumn += OnAutoGeneratingColumn;
             gamesGrid.LoadingRow += OnLoadingRow;
+            gamesGrid.UnloadingRow += OnUnloadingRow;
         }
 
         void OnLoadingRow(object sender, DataGridRowEventArgs e)
         {
-            headerText.Content = gameList.dataFile.Header.Name + ": "
-                        + gameList.dataFile.Header.Description + " ("
+            headerText.Content = dataFile.Header.Name + ": "
+                        + dataFile.Header.Description + " ("
+                        + gamesGrid.Items.Count + " games)";
+        }
+
+        void OnUnloadingRow(object sender, DataGridRowEventArgs e)
+        {
+            headerText.Content = dataFile.Header.Name + ": "
+                        + dataFile.Header.Description + " ("
                         + gamesGrid.Items.Count + " games)";
         }
 
@@ -40,7 +54,7 @@ namespace RetroFilter
                 e.Column.Visibility = Visibility.Hidden;
             }
             // hide non used columns
-            if (gameList.dataFile.Games[0].GetType().Name != "MameGame")
+            if (dataFile.Games[0].GetType().Name != "MameGame")
             {
                 if (name == "SourceFile" || name == "IsDevice" || name == "Runnable")
                 {
@@ -55,10 +69,9 @@ namespace RetroFilter
             openFileDialog.Filter = "Mame DAT (*.dat)|*.dat|All files (*.*)|*.*";
             if (openFileDialog.ShowDialog() == true)
             {
-                gameList = new GameList();
-                if (gameList.Load(openFileDialog.FileName))
+                if (Load(openFileDialog.FileName))
                 {
-                    gamesGrid.ItemsSource = gameList.dataFile.gamesCollection;
+                    gamesGrid.ItemsSource = dataFile.gamesCollection;
                     loadDat.Visibility = Visibility.Hidden;
                     headerPanel.Visibility = Visibility.Visible;
                     gamesGrid.Visibility = Visibility.Visible;
@@ -75,13 +88,13 @@ namespace RetroFilter
 
         private void btnSaveDat_Click(object sender, RoutedEventArgs e)
         {
-            if (gameList != null && gameList.dataFile != null && gameList.dataFile.Games.Count > 0)
+            if (dataFile != null && dataFile.Games.Count > 0)
             {
                 SaveFileDialog dialog = new SaveFileDialog();
                 dialog.Filter = "Mame DAT (*.dat)|*.dat|All files (*.*)|*.*";
                 if (dialog.ShowDialog() == true)
                 {
-                    if (!gameList.Save(dialog.FileName))
+                    if (!Save(dialog.FileName))
                     {
                         this.ShowMessageAsync("Oups", "Something went wrong with this file...");
                     }
@@ -92,6 +105,88 @@ namespace RetroFilter
         private void btnSupport_Click(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Process.Start("https://www.paypal.me/cpasjuste");
+        }
+
+        public bool Load(string path)
+        {
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(DataFile));
+                StreamReader reader = new StreamReader(path);
+                dataFile = (DataFile)serializer.Deserialize(reader);
+                reader.Close();
+            }
+            catch
+            {
+                Console.WriteLine("Could not parse gamelist: " + path);
+                return false;
+            }
+
+            if (dataFile.Games.Count <= 0)
+            {
+                Console.WriteLine("Could not parse gamelist: no games found");
+                return false;
+            }
+
+            // parse embedded catver, convert it to dictionnary for faster search
+            string catver = GetEmbeddedResource("catver_0.214.ini");
+            string[] catverLines = catver.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            Dictionary<string, string> catverDic = catverLines.Select(item => item.Split('=')).ToDictionary(s => s[0], s => s[1]);
+            foreach (Game game in dataFile.Games)
+            {
+                if (!catverDic.TryGetValue(game.Name, out string genre) && game.IsClone)
+                {
+                    catverDic.TryGetValue(game.CloneOf, out genre);
+                }
+
+                if (!string.IsNullOrEmpty(genre))
+                {
+                    game.Genre = genre;
+                }
+            }
+
+            // finally, create ObservableCollection for datagrid
+            dataFile.gamesCollection = new ObservableCollection<Game>(dataFile.Games);
+
+            return true;
+        }
+
+        public bool Save(string path)
+        {
+            try
+            {
+                TextWriter writer = new StreamWriter(path);
+                XmlSerializer serializer = new XmlSerializer(typeof(DataFile));
+                dataFile.Games = new List<Game>(gamesGrid.Items.OfType<Game>());
+                serializer.Serialize(writer, dataFile);
+                writer.Close();
+            }
+            catch
+            {
+                Console.WriteLine("Could not parse gamelist: " + path);
+                return false;
+            }
+            return true;
+        }
+
+        private string GetEmbeddedResource(string resourceName)
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            resourceName = assembly.GetName().Name + "." +
+                resourceName.Replace(" ", "_").Replace("\\", ".").Replace("/", ".");
+
+            using (Stream resourceStream = assembly.GetManifestResourceStream(resourceName))
+            {
+                if (resourceStream == null)
+                {
+                    return null;
+                }
+
+                using (StreamReader reader = new StreamReader(resourceStream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
         }
     }
 }
