@@ -12,11 +12,19 @@ namespace RetroFilter
     [System.Serializable()]
     public class Game
     {
+        [XmlIgnore]
+        public bool Locked { get; set; }
+
         [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
 
         [XmlAttribute(AttributeName = "sourcefile")]
         public string SourceFile { get; set; }
+
+        [XmlAttribute(AttributeName = "isbios")]
+        public string IsBiosInternal { get; set; }
+        [XmlIgnore]
+        public bool IsBios { get { return IsBiosInternal == "yes"; } set { } }
 
         [XmlAttribute(AttributeName = "isdevice")]
         public string IsDevice { get; set; }

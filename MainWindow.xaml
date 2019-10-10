@@ -40,7 +40,8 @@
             <StackPanel Name="headerPanel" Grid.Row="0" Orientation="Horizontal" Height="42">
                 <Label Name="headerText" Margin="8 8 0 8" Content="Name: ..., Desc...." Foreground="Orange"/>
             </StackPanel>
-            <DataGrid Name="gamesGrid" Grid.Row="1"  ItemsSource="{Binding}" AutoGenerateColumns="True" CanUserAddRows="False" dgx:DataGridFilter.IsAutoFilterEnabled="True">
+            <DataGrid Name="gamesGrid" Grid.Row="1" ItemsSource="{Binding}" AutoGenerateColumns="True" PreviewKeyDown="gamesGrid_PreviewKeyDown"
+                      CanUserAddRows="False" CanUserDeleteRows="False" dgx:DataGridFilter.IsAutoFilterEnabled="True">
                 <DataGrid.ColumnHeaderStyle>
                     <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}"/>
                 </DataGrid.ColumnHeaderStyle>

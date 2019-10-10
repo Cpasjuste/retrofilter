@@ -12,6 +12,8 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.ComponentModel;
+using System.Windows.Input;
 
 namespace RetroFilter
 {
@@ -31,6 +33,31 @@ namespace RetroFilter
             gamesGrid.UnloadingRow += OnUnloadingRow;
         }
 
+        private void gamesGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            var grid = (DataGrid)sender;
+            if (Key.Delete == e.Key && grid.SelectedItems.Count > 0)
+            {
+                List<Game> games = new List<Game>();
+                foreach (Game game in grid.SelectedItems)
+                {
+                    if (!game.Locked)
+                    {
+                        games.Add(game);
+                    }
+                }
+                foreach (Game game in games)
+                {
+                    dataFile.gamesCollection.Remove(game);
+                }
+            }
+            // update header
+            headerText.Content = dataFile.Header.Name + ": "
+                       + dataFile.Header.Description + " ("
+                       + gamesGrid.Items.Count + " games)";
+            e.Handled = true;
+        }
+
         void OnLoadingRow(object sender, DataGridRowEventArgs e)
         {
             headerText.Content = dataFile.Header.Name + ": "
@@ -45,18 +72,12 @@ namespace RetroFilter
                         + gamesGrid.Items.Count + " games)";
         }
 
-        void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            headerText.Content = dataFile.Header.Name + ": "
-                        + dataFile.Header.Description + " ("
-                        + gamesGrid.Items.Count + " games)";
-        }
-
         void OnAutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
         {
             string name = e.Column.Header.ToString();
-            // hide not handled columns (DataFile child classes)
-            if (name == "Driver" || name == "BiosSets" || name == "Roms" || name == "DeviceRefs" || name == "Samples")
+            // hide unhandled columns (DataFile child classes)
+            if (name == "IsBiosInternal" || name == "Driver" || name == "BiosSets"
+                || name == "Roms" || name == "DeviceRefs" || name == "Samples" || name == "IsDeleteEnabled")
             {
                 e.Column.Visibility = Visibility.Hidden;
             }
@@ -76,7 +97,7 @@ namespace RetroFilter
             openFileDialog.Filter = "Mame DAT (*.dat)|*.dat|All files (*.*)|*.*";
             if (openFileDialog.ShowDialog() == true)
             {
-                if (Load(openFileDialog.FileName))
+                if (LoadDatafile(openFileDialog.FileName))
                 {
                     gamesGrid.ItemsSource = dataFile.gamesCollection;
                     loadDat.Visibility = Visibility.Hidden;
@@ -101,7 +122,7 @@ namespace RetroFilter
                 dialog.Filter = "Mame DAT (*.dat)|*.dat|All files (*.*)|*.*";
                 if (dialog.ShowDialog() == true)
                 {
-                    if (!Save(dialog.FileName))
+                    if (!SaveDatafile(dialog.FileName))
                     {
                         this.ShowMessageAsync("Oups", "Something went wrong with this file...");
                     }
@@ -114,7 +135,7 @@ namespace RetroFilter
             System.Diagnostics.Process.Start("https://www.paypal.me/cpasjuste");
         }
 
-        public bool Load(string path)
+        public bool LoadDatafile(string path)
         {
             try
             {
@@ -154,12 +175,11 @@ namespace RetroFilter
 
             // finally, create ObservableCollection for datagrid
             dataFile.gamesCollection = new ObservableCollection<Game>(dataFile.Games);
-            dataFile.gamesCollection.CollectionChanged += OnCollectionChanged;
 
             return true;
         }
 
-        public bool Save(string path)
+        public bool SaveDatafile(string path)
         {
             try
             {
