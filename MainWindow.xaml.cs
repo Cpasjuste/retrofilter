@@ -1,5 +1,4 @@
-﻿using System.Collections.Specialized;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
@@ -12,8 +11,9 @@ using System.IO;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.ComponentModel;
 using System.Windows.Input;
+using System.Data;
+using System.Windows.Data;
 
 namespace RetroFilter
 {
@@ -33,10 +33,10 @@ namespace RetroFilter
             gamesGrid.UnloadingRow += OnUnloadingRow;
         }
 
-        private void gamesGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void gamesGrid_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            var grid = (DataGrid)sender;
-            if (Key.Delete == e.Key && grid.SelectedItems.Count > 0)
+            DataGrid grid = (DataGrid)sender;
+            if (e.Command == DataGrid.DeleteCommand)
             {
                 List<Game> games = new List<Game>();
                 foreach (Game game in grid.SelectedItems)
@@ -50,12 +50,12 @@ namespace RetroFilter
                 {
                     dataFile.gamesCollection.Remove(game);
                 }
+                // update header
+                headerText.Content = dataFile.Header.Name + ": "
+                           + dataFile.Header.Description + " ("
+                           + gamesGrid.Items.Count + " games)";
+                e.Handled = true;
             }
-            // update header
-            headerText.Content = dataFile.Header.Name + ": "
-                       + dataFile.Header.Description + " ("
-                       + gamesGrid.Items.Count + " games)";
-            e.Handled = true;
         }
 
         void OnLoadingRow(object sender, DataGridRowEventArgs e)
@@ -81,6 +81,7 @@ namespace RetroFilter
             {
                 e.Column.Visibility = Visibility.Hidden;
             }
+
             // hide non used columns
             if (dataFile.Games[0].GetType().Name != "MameGame")
             {
@@ -89,6 +90,24 @@ namespace RetroFilter
                     e.Column.Visibility = Visibility.Hidden;
                 }
             }
+        }
+
+        private void btnLockAll_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (Game game in gamesGrid.Items)
+            {
+                game.Locked = true;
+            }
+            CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
+        }
+
+        private void btnUnlockAll_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (Game game in gamesGrid.Items)
+            {
+                game.Locked = false;
+            }
+            CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
         }
 
         private void btnLoadDat_Click(object sender, RoutedEventArgs e)
@@ -185,6 +204,7 @@ namespace RetroFilter
             {
                 TextWriter writer = new StreamWriter(path);
                 XmlSerializer serializer = new XmlSerializer(typeof(DataFile));
+                // save visible games
                 dataFile.Games = new List<Game>(gamesGrid.Items.OfType<Game>());
                 serializer.Serialize(writer, dataFile);
                 writer.Close();

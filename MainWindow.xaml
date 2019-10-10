@@ -9,6 +9,23 @@
         mc:Ignorable="d"
         Title="RetroFilter" Height="450" Width="640" ResizeMode="CanResizeWithGrip">
 
+    <Controls:MetroWindow.LeftWindowCommands>
+        <Controls:WindowCommands>
+            <Button Click="btnLockAll_Click">
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconModern Width="20" Height="20" Kind="Lock" />
+                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Lock" />
+                </StackPanel>
+            </Button>
+            <Button Click="btnUnlockAll_Click">
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconModern Width="20" Height="20" Kind="Unlock" />
+                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Unlock" />
+                </StackPanel>
+            </Button>
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.LeftWindowCommands>
+
     <Controls:MetroWindow.RightWindowCommands>
         <Controls:WindowCommands>
             <Button Click="btnLoadDat_Click">
@@ -40,8 +57,8 @@
             <StackPanel Name="headerPanel" Grid.Row="0" Orientation="Horizontal" Height="42">
                 <Label Name="headerText" Margin="8 8 0 8" Content="Name: ..., Desc...." Foreground="Orange"/>
             </StackPanel>
-            <DataGrid Name="gamesGrid" Grid.Row="1" ItemsSource="{Binding}" AutoGenerateColumns="True" PreviewKeyDown="gamesGrid_PreviewKeyDown"
-                      CanUserAddRows="False" CanUserDeleteRows="False" dgx:DataGridFilter.IsAutoFilterEnabled="True">
+            <DataGrid Name="gamesGrid" Grid.Row="1" ItemsSource="{Binding}" AutoGenerateColumns="True" CommandManager.PreviewCanExecute="gamesGrid_PreviewCanExecute" 
+                      CanUserAddRows="False" CanUserDeleteRows="True" dgx:DataGridFilter.IsAutoFilterEnabled="True">
                 <DataGrid.ColumnHeaderStyle>
                     <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}"/>
                 </DataGrid.ColumnHeaderStyle>
