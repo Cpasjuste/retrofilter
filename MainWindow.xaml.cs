@@ -51,25 +51,26 @@ namespace RetroFilter
                     dataFile.gamesCollection.Remove(game);
                 }
                 // update header
-                headerText.Content = dataFile.Header.Name + ": "
-                           + dataFile.Header.Description + " ("
-                           + gamesGrid.Items.Count + " games)";
-                e.Handled = true;
+                headerName.Text = dataFile.Header.Name;
+                headerDesc.Text = dataFile.Header.Description;
+                headerGameCount.Content = "(" + gamesGrid.Items.Count + " games)";
+
+                e.Handled = games.Count > 0;
             }
         }
 
         void OnLoadingRow(object sender, DataGridRowEventArgs e)
         {
-            headerText.Content = dataFile.Header.Name + ": "
-                        + dataFile.Header.Description + " ("
-                        + gamesGrid.Items.Count + " games)";
+            headerName.Text = dataFile.Header.Name;
+            headerDesc.Text = dataFile.Header.Description;
+            headerGameCount.Content = "(" + gamesGrid.Items.Count + " games)";
         }
 
         void OnUnloadingRow(object sender, DataGridRowEventArgs e)
         {
-            headerText.Content = dataFile.Header.Name + ": "
-                        + dataFile.Header.Description + " ("
-                        + gamesGrid.Items.Count + " games)";
+            headerName.Text = dataFile.Header.Name;
+            headerDesc.Text = dataFile.Header.Description;
+            headerGameCount.Content = "(" + gamesGrid.Items.Count + " games)";
         }
 
         void OnAutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
@@ -81,7 +82,6 @@ namespace RetroFilter
             {
                 e.Column.Visibility = Visibility.Hidden;
             }
-
             // hide non used columns
             if (dataFile.Games[0].GetType().Name != "MameGame")
             {
@@ -118,6 +118,8 @@ namespace RetroFilter
             {
                 if (LoadDatafile(openFileDialog.FileName))
                 {
+                    //headerTextBottom.Content = "Version: "
+                    //    + dataFile.Header.Version + " (" + dataFile.Header.Date + ")";
                     gamesGrid.ItemsSource = dataFile.gamesCollection;
                     loadDat.Visibility = Visibility.Hidden;
                     headerPanel.Visibility = Visibility.Visible;
