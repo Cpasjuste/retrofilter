@@ -43,7 +43,8 @@ namespace RetroFilter
             {
                 filters.AddRange(new List<string>()
                 {  "Desc", "Source", "Image", "Thumbnail", "ReleaseDate",
-                    "Path", "Developer", "Region", "RomType", "Id", "Publisher"});
+                    "Path", "Developer", "Region", "RomType", "Id",
+                    "Publisher", "Rating", "Players", "Hash"});
             }
 
             if (type == Type.MameGame)
@@ -168,11 +169,11 @@ namespace RetroFilter
         private static void Serializer_UnknownElement(object sender, XmlElementEventArgs e)
         {
             //Console.WriteLine("unk element: " + e.Element.Name);
-            Game game = (Game)e.ObjectBeingDeserialized;
 
             // handle EmulationStation game nodes
             if (e.Element.Name == "name")
             {
+                Game game = (Game)e.ObjectBeingDeserialized;
                 game.Name = e.Element.InnerText;
             }
         }

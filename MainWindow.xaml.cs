@@ -49,20 +49,24 @@ namespace RetroFilter
                 headerName.Text = dataFile.Header.Name;
                 headerDesc.Text = dataFile.Header.Description;
                 headerGameCount.Content = "(" + gamesGrid.Items.Count + " games)";
+
                 // select next row
                 if (index >= gamesGrid.Items.Count)
                 {
                     index = gamesGrid.Items.Count - 1;
                 }
-                object item = gamesGrid.Items[index];
-                if (item != null)
+                if (index >= 0)
                 {
-                    gamesGrid.SelectedItem = item;
-                    gamesGrid.ScrollIntoView(item);
-                    DataGridRow row = (DataGridRow)gamesGrid.ItemContainerGenerator.ContainerFromIndex(index);
-                    if (row != null)
+                    object item = gamesGrid.Items[index];
+                    if (item != null)
                     {
-                        row.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                        gamesGrid.SelectedItem = item;
+                        gamesGrid.ScrollIntoView(item);
+                        DataGridRow row = (DataGridRow)gamesGrid.ItemContainerGenerator.ContainerFromIndex(index);
+                        if (row != null)
+                        {
+                            row.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                        }
                     }
                 }
 

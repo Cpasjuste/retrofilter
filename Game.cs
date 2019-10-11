@@ -29,6 +29,10 @@ namespace RetroFilter
         [XmlAttribute(AttributeName = "id")]
         public string Id { get; set; }
 
+        // ES
+        [XmlAttribute(AttributeName = "source")]
+        public string Source { get; set; }
+
         [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
 
@@ -49,6 +53,10 @@ namespace RetroFilter
         // ES
         [XmlElement(ElementName = "desc")]
         public string Desc { get; set; }
+
+        // ES
+        [XmlElement(ElementName = "rating")]
+        public string Rating { get; set; }
 
         [XmlElement(ElementName = "year")]
         public string Year { get; set; }
@@ -72,12 +80,12 @@ namespace RetroFilter
         public string Genre { get; set; }
 
         // ES
-        [XmlElement(ElementName = "region")]
-        public string Region { get; set; }
+        [XmlElement(ElementName = "players")]
+        public string Players { get; set; }
 
         // ES
-        [XmlElement(ElementName = "romtype")]
-        public string RomType { get; set; }
+        [XmlElement(ElementName = "region")]
+        public string Region { get; set; }
 
         [XmlAttribute(AttributeName = "romof")]
         public string RomOf { get; set; }
@@ -92,6 +100,14 @@ namespace RetroFilter
         public string SourceFile { get; set; }
 
         // ES
+        [XmlElement(ElementName = "romtype")]
+        public string RomType { get; set; }
+
+        // ES
+        [XmlElement(ElementName = "hash")]
+        public string Hash { get; set; }
+
+        // ES
         [XmlElement(ElementName = "path")]
         public string Path { get; set; }
 
@@ -102,11 +118,6 @@ namespace RetroFilter
         // ES
         [XmlElement(ElementName = "thumbnail")]
         public string Thumbnail { get; set; }
-
-
-        // ES
-        [XmlAttribute(AttributeName = "source")]
-        public string Source { get; set; }
 
         [XmlElement(ElementName = "biosset")]
         public List<BiosSet> BiosSets { get; set; }
