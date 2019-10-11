@@ -6,7 +6,6 @@ using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Windows.Input;
 using System.Windows.Data;
-using System;
 
 namespace RetroFilter
 {
@@ -98,7 +97,11 @@ namespace RetroFilter
                 e.Column.Visibility = Visibility.Hidden;
             }
 
-            if (name == "Desc")
+            if (name == "NameES")
+            {
+                e.Column.Header = "Name";
+            }
+            else if (name == "Desc")
             {
                 e.Column.Width = 400;
             }
@@ -110,6 +113,7 @@ namespace RetroFilter
             {
                 game.Locked = true;
             }
+
             CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
         }
 
@@ -119,6 +123,7 @@ namespace RetroFilter
             {
                 game.Locked = false;
             }
+
             CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
         }
 
@@ -151,7 +156,7 @@ namespace RetroFilter
             if (dataFile != null && dataFile.Games.Count > 0)
             {
                 SaveFileDialog dialog = new SaveFileDialog();
-                dialog.Filter = "Mame DAT (*.dat)|*.dat|All files (*.*)|*.*";
+                dialog.Filter = "Mame / ES (*.dat/*.xml)|*.dat;*.xml|All files (*.*)|*.*";
                 if (dialog.ShowDialog() == true)
                 {
                     if (!DataFile.Save(dataFile, gamesGrid.Items, dialog.FileName))

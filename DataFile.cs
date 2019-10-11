@@ -35,14 +35,14 @@ namespace RetroFilter
             List<string> filters = new List<string>();
 
             filters.AddRange(new List<string>() {
-                "IsBiosInternal","Driver" ,"BiosSets"
-                ,"Roms" ,"DeviceRefs","Samples","IsDeleteEnabled"
+                "IsBiosInternal","Driver" ,"BiosSets",
+                "Roms" ,"DeviceRefs","Samples","IsDeleteEnabled"
             });
 
             if (type == Type.MameGame || type == Type.MameMachine)
             {
                 filters.AddRange(new List<string>()
-                {  "Desc", "Source", "Image", "Thumbnail", "ReleaseDate",
+                {  "NameES", "Desc", "Source", "Image", "Thumbnail", "ReleaseDate",
                     "Path", "Developer", "Region", "RomType", "Id",
                     "Publisher", "Rating", "Players", "Hash"});
             }
@@ -59,7 +59,7 @@ namespace RetroFilter
             else if (type == Type.EmulationStation)
             {
                 filters.AddRange(new List<string>()
-                {  "SourceFile", "IsDevice", "Runnable",
+                {  "Name", "SourceFile", "IsDevice", "Runnable",
                     "IsBios", "Year", "Description",
                     "Manufacturer", "RomOf", "CloneOf", "IsRom", "IsClone" });
             }
@@ -75,8 +75,8 @@ namespace RetroFilter
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(DataFile),
                     new XmlRootAttribute { ElementName = "datafile" });
-                serializer.UnknownElement += Serializer_UnknownElement;
-                serializer.UnknownAttribute += Serializer_UnknownAttribute;
+                //serializer.UnknownElement += Serializer_UnknownElement;
+                //serializer.UnknownAttribute += Serializer_UnknownAttribute;
                 StreamReader reader = new StreamReader(path);
                 dataFile = (DataFile)serializer.Deserialize(reader);
                 reader.Close();
@@ -87,8 +87,8 @@ namespace RetroFilter
                 {
                     XmlSerializer serializer = new XmlSerializer(typeof(DataFile),
                         new XmlRootAttribute { ElementName = "gameList" });
-                    serializer.UnknownElement += Serializer_UnknownElement;
-                    serializer.UnknownAttribute += Serializer_UnknownAttribute;
+                    //serializer.UnknownElement += Serializer_UnknownElement;
+                    //serializer.UnknownAttribute += Serializer_UnknownAttribute;
                     StreamReader reader = new StreamReader(path);
                     dataFile = (DataFile)serializer.Deserialize(reader);
                     dataFile.type = Type.EmulationStation;
@@ -120,7 +120,8 @@ namespace RetroFilter
             Dictionary<string, string> catverDic = catverLines.Select(item => item.Split('=')).ToDictionary(s => s[0], s => s[1]);
             foreach (Game game in dataFile.Games)
             {
-                if (!catverDic.TryGetValue(game.Name, out string genre) && game.IsClone)
+                string name = string.IsNullOrEmpty(game.Name) ? game.NameES : game.Name;
+                if (!catverDic.TryGetValue(name, out string genre) && game.IsClone)
                 {
                     catverDic.TryGetValue(game.CloneOf, out genre);
                 }
@@ -137,9 +138,11 @@ namespace RetroFilter
             // EmulationStation seems to have no header
             if (dataFile.Header == null)
             {
-                dataFile.Header = new Header();
-                dataFile.Header.Name = "No Name";
-                dataFile.Header.Description = "No Description";
+                dataFile.Header = new Header
+                {
+                    Name = "No Name",
+                    Description = "No Description"
+                };
             }
 
             Console.WriteLine("database loaded: type is " + dataFile.type.ToString() + ", games: " + dataFile.Games.Count);
@@ -151,11 +154,15 @@ namespace RetroFilter
         {
             try
             {
+                string root = dataFile.type == Type.EmulationStation ? "gameList" : "datafile";
+                XmlRootAttribute xmlRoot = new XmlRootAttribute(root);
+                XmlSerializer serializer = new XmlSerializer(typeof(DataFile), xmlRoot);
+                DataFile df = new DataFile();
+                df.Header = dataFile.type == Type.EmulationStation ? null : dataFile.Header;
+                // only save visible games
+                df.Games = new List<Game>(collection.OfType<Game>());
                 TextWriter writer = new StreamWriter(path);
-                XmlSerializer serializer = new XmlSerializer(typeof(DataFile));
-                // save visible games
-                dataFile.Games = new List<Game>(collection.OfType<Game>());
-                serializer.Serialize(writer, dataFile);
+                serializer.Serialize(writer, df);
                 writer.Close();
             }
             catch
@@ -169,13 +176,6 @@ namespace RetroFilter
         private static void Serializer_UnknownElement(object sender, XmlElementEventArgs e)
         {
             //Console.WriteLine("unk element: " + e.Element.Name);
-
-            // handle EmulationStation game nodes
-            if (e.Element.Name == "name")
-            {
-                Game game = (Game)e.ObjectBeingDeserialized;
-                game.Name = e.Element.InnerText;
-            }
         }
 
         private static void Serializer_UnknownAttribute(object sender, XmlAttributeEventArgs e)

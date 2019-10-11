@@ -6,8 +6,9 @@ namespace RetroFilter
 {
     // xml root: datafile, xml elements names: "machine" (Mame)
     [System.Serializable()]
-    public class Machine : Game {
-        
+    public class Machine : Game
+    {
+
 
     }
 
@@ -35,6 +36,9 @@ namespace RetroFilter
 
         [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
+
+        [XmlElement(ElementName = "name")]
+        public string NameES { get; set; }
 
         [XmlAttribute(AttributeName = "isbios")]
         public string IsBiosInternal { get; set; }
