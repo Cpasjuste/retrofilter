@@ -4,22 +4,33 @@ using System.Xml.Serialization;
 
 namespace RetroFilter
 {
-    // xml elements names: "machine"
+    // xml root: datafile, xml elements names: "machine" (Mame)
     [System.Serializable()]
-    public class MameGame : Game { }
+    public class Machine : Game {
+        
 
-    // xml elements names: "game" (libretro dats, emulationstation dats...)
+    }
+
+    // xml root: gameList, xml elements names: "game" (ES)
+    [System.Serializable()]
+    public class EmulationStationGame : Game
+    {
+
+    }
+
+    // xml root: datafile, xml elements names: "game" (Mame)
     [System.Serializable()]
     public class Game
     {
         [XmlIgnore]
         public bool Locked { get; set; }
 
+        // ES
+        [XmlAttribute(AttributeName = "id")]
+        public string Id { get; set; }
+
         [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
-
-        [XmlAttribute(AttributeName = "sourcefile")]
-        public string SourceFile { get; set; }
 
         [XmlAttribute(AttributeName = "isbios")]
         public string IsBiosInternal { get; set; }
@@ -35,14 +46,38 @@ namespace RetroFilter
         [XmlElement(ElementName = "description")]
         public string Description { get; set; }
 
+        // ES
+        [XmlElement(ElementName = "desc")]
+        public string Desc { get; set; }
+
         [XmlElement(ElementName = "year")]
         public string Year { get; set; }
+
+        // ES
+        [XmlElement(ElementName = "releasedate")]
+        public string ReleaseDate { get; set; }
 
         [XmlElement(ElementName = "manufacturer")]
         public string Manufacturer { get; set; }
 
+        // ES
+        [XmlElement(ElementName = "developer")]
+        public string Developer { get; set; }
+
+        // ES
+        [XmlElement(ElementName = "publisher")]
+        public string Publisher { get; set; }
+
         [XmlElement(ElementName = "genre")]
         public string Genre { get; set; }
+
+        // ES
+        [XmlElement(ElementName = "region")]
+        public string Region { get; set; }
+
+        // ES
+        [XmlElement(ElementName = "romtype")]
+        public string RomType { get; set; }
 
         [XmlAttribute(AttributeName = "romof")]
         public string RomOf { get; set; }
@@ -52,6 +87,26 @@ namespace RetroFilter
 
         [XmlIgnore]
         public bool IsClone { get { return !string.IsNullOrEmpty(CloneOf); } set { } }
+
+        [XmlAttribute(AttributeName = "sourcefile")]
+        public string SourceFile { get; set; }
+
+        // ES
+        [XmlElement(ElementName = "path")]
+        public string Path { get; set; }
+
+        // ES
+        [XmlElement(ElementName = "image")]
+        public string Image { get; set; }
+
+        // ES
+        [XmlElement(ElementName = "thumbnail")]
+        public string Thumbnail { get; set; }
+
+
+        // ES
+        [XmlAttribute(AttributeName = "source")]
+        public string Source { get; set; }
 
         [XmlElement(ElementName = "biosset")]
         public List<BiosSet> BiosSets { get; set; }

@@ -59,8 +59,9 @@
                     </Button>
                 </StackPanel>
             </StackPanel>
-            <DataGrid Name="gamesGrid" Grid.Row="1" ItemsSource="{Binding}" AutoGenerateColumns="True" CommandManager.PreviewCanExecute="gamesGrid_PreviewCanExecute" 
-                      CanUserAddRows="False" CanUserDeleteRows="True" dgx:DataGridFilter.IsAutoFilterEnabled="True">
+            <DataGrid Name="gamesGrid" Grid.Row="1" ItemsSource="{Binding}" AutoGenerateColumns="True"
+                      CanUserAddRows="False" CanUserDeleteRows="True" dgx:DataGridFilter.IsAutoFilterEnabled="True"
+                      CommandManager.PreviewCanExecute="gamesGrid_PreviewCanExecute" >
                 <DataGrid.ColumnHeaderStyle>
                     <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}"/>
                 </DataGrid.ColumnHeaderStyle>
