@@ -39,22 +39,32 @@
                     <Label Name="headerGameCount" Content="(360 games)" Foreground="Orange" FontWeight="Bold"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <Button Click="btnLockAll_Click" BorderThickness="0" Foreground="Orange" Background="Transparent">
+                    <Button ToolTip="Lock all games" 
+                        Click="btnLockAll_Click" BorderThickness="0" Foreground="Orange" Background="Transparent">
                         <StackPanel Orientation="Horizontal">
                             <iconPacks:PackIconModern Width="20" Height="20" Kind="Lock" FontWeight="Bold" />
-                            <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="MassLock" />
+                            <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Lock" />
                         </StackPanel>
                     </Button>
-                    <Button Click="btnUnlockAll_Click" BorderThickness="0" Foreground="Orange" Background="Transparent">
+                    <Button ToolTip="Unlock all games" 
+                        Click="btnUnlockAll_Click" BorderThickness="0" Foreground="Orange" Background="Transparent">
                         <StackPanel Orientation="Horizontal">
                             <iconPacks:PackIconModern Width="20" Height="20" Kind="Unlock" />
-                            <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="MassUnlock" />
+                            <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Unlock" />
                         </StackPanel>
                     </Button>
-                    <Button Click="btnSaveDat_Click" BorderThickness="0" Foreground="Orange" Background="Transparent">
+                    <Button ToolTip="Save datafile" 
+                        Click="btnSaveDat_Click" BorderThickness="0" Foreground="Orange" Background="Transparent">
                         <StackPanel Orientation="Horizontal">
                             <iconPacks:PackIconModern Width="18" Height="18" Kind="Save" />
                             <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Save" />
+                        </StackPanel>
+                    </Button>
+                    <Button ToolTip="Process a rom folder" 
+                            Click="btnProcessFolder_Click" BorderThickness="0" Foreground="Orange" Background="Transparent">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconModern Width="18" Height="18" Kind="Folder" />
+                            <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Process" />
                         </StackPanel>
                     </Button>
                 </StackPanel>

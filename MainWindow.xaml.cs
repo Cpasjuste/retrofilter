@@ -6,6 +6,7 @@ using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Windows.Input;
 using System.Windows.Data;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace RetroFilter
 {
@@ -164,6 +165,17 @@ namespace RetroFilter
                         this.ShowMessageAsync("Oups", "Something went wrong with this file...");
                     }
                 }
+            }
+        }
+
+        private void btnProcessFolder_Click(object sender, RoutedEventArgs e)
+        {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                // TODO:
+                MessageBox.Show("Todo!");
             }
         }
 
