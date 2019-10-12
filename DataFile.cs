@@ -25,8 +25,8 @@ namespace RetroFilter
         [XmlElement("game", typeof(Game))]
         [XmlElement("machine", typeof(Machine))]
         public List<Game> Games { get; set; }
-        [XmlIgnore]
-        public ObservableCollection<Game> gamesCollection { get; set; }
+        //[XmlIgnore]
+        //public ObservableCollection<Game> gamesCollection { get; set; }
         [XmlIgnore]
         public Type type = Type.MameGame;
 
@@ -133,7 +133,7 @@ namespace RetroFilter
             }
 
             // create ObservableCollection for datagrid
-            dataFile.gamesCollection = new ObservableCollection<Game>(dataFile.Games);
+            //dataFile.gamesCollection = new ObservableCollection<Game>(dataFile.Games);
 
             // EmulationStation seems to have no header
             if (dataFile.Header == null)

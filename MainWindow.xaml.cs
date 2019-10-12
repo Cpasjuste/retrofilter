@@ -8,18 +8,19 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.Win32;
 using System;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace RetroFilter
 {
     public partial class MainWindow : MetroWindow
     {
         public DataFile dataFile;
-        public ProgressWindow progressWindow;
 
         public MainWindow()
         {
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
             InitializeComponent();
+
             loadDat.Visibility = Visibility.Visible;
             headerPanel.Visibility = Visibility.Hidden;
             gamesGrid.Visibility = Visibility.Hidden;
@@ -33,65 +34,45 @@ namespace RetroFilter
             DataGrid grid = (DataGrid)sender;
             if (e.Command == DataGrid.DeleteCommand)
             {
-                progressWindow = new ProgressWindow();
-                progressWindow.Show(progress =>
+                int index = gamesGrid.SelectedIndex;
+                foreach (Game g in gamesGrid.SelectedItems)
                 {
-                    UpdateGameGrid(progress);
-                });
+                    if (!g.Locked)
+                    {
+                        dataFile.Games.Remove(g);
+                    }
+                }
+
+                gamesGrid.CommitEdit();
+                CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
+
+                // update header
+                headerName.Text = dataFile.Header.Name;
+                headerDesc.Text = dataFile.Header.Description;
+                headerGameCount.Content = "(" + gamesGrid.Items.Count + " games)";
+
+                // select next row
+                if (index >= gamesGrid.Items.Count)
+                {
+                    index = gamesGrid.Items.Count - 1;
+                }
+                if (index >= 0)
+                {
+                    object item = gamesGrid.Items[index];
+                    if (item != null)
+                    {
+                        gamesGrid.SelectedItem = item;
+                        gamesGrid.ScrollIntoView(item);
+                        DataGridRow row = (DataGridRow)gamesGrid.ItemContainerGenerator.ContainerFromIndex(index);
+                        if (row != null)
+                        {
+                            row.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                        }
+                    }
+                }
 
                 // ok
                 e.Handled = true;
-            }
-        }
-
-        private void UpdateGameGrid(IProgress<string> progress)
-        {
-            bool mainThread = Application.Current.Dispatcher.Thread == System.Threading.Thread.CurrentThread;
-            if (mainThread)
-                UpdateGameGridRoutine(progress);
-            else
-                Application.Current.Dispatcher.Invoke(
-                    new Action(() => UpdateGameGridRoutine(progress)));
-        }
-
-        private void UpdateGameGridRoutine(IProgress<string> progress)
-        {
-            int index = gamesGrid.SelectedIndex;
-            int count = gamesGrid.SelectedItems.Count;
-            while (gamesGrid.SelectedItems.Count > 0)
-            {
-                Game game = (Game)gamesGrid.SelectedItems[0];
-                if (!game.Locked)
-                {
-                    dataFile.gamesCollection.Remove(game);
-                }
-                count--;
-                progress.Report(count.ToString());
-            }
-
-            // update header
-            headerName.Text = dataFile.Header.Name;
-            headerDesc.Text = dataFile.Header.Description;
-            headerGameCount.Content = "(" + gamesGrid.Items.Count + " games)";
-
-            // select next row
-            if (index >= gamesGrid.Items.Count)
-            {
-                index = gamesGrid.Items.Count - 1;
-            }
-            if (index >= 0)
-            {
-                object item = gamesGrid.Items[index];
-                if (item != null)
-                {
-                    gamesGrid.SelectedItem = item;
-                    gamesGrid.ScrollIntoView(item);
-                    DataGridRow row = (DataGridRow)gamesGrid.ItemContainerGenerator.ContainerFromIndex(index);
-                    if (row != null)
-                    {
-                        row.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-                    }
-                }
             }
         }
 
@@ -157,7 +138,7 @@ namespace RetroFilter
                 dataFile = DataFile.Load(openFileDialog.FileName);
                 if (dataFile != null)
                 {
-                    gamesGrid.ItemsSource = dataFile.gamesCollection;
+                    gamesGrid.ItemsSource = dataFile.Games; //dataFile.gamesCollection;
                     loadDat.Visibility = Visibility.Hidden;
                     headerPanel.Visibility = Visibility.Visible;
                     gamesGrid.Visibility = Visibility.Visible;
