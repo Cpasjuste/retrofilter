@@ -2,17 +2,19 @@
 using System.Windows.Controls;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
-using Microsoft.Win32;
-using System.Collections.Generic;
 using System.Windows.Input;
 using System.Windows.Data;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Microsoft.Win32;
+using System;
+using System.Threading;
 
 namespace RetroFilter
 {
     public partial class MainWindow : MetroWindow
     {
         public DataFile dataFile;
+        public ProgressWindow progressWindow;
 
         public MainWindow()
         {
@@ -31,47 +33,65 @@ namespace RetroFilter
             DataGrid grid = (DataGrid)sender;
             if (e.Command == DataGrid.DeleteCommand)
             {
-                int index = gamesGrid.SelectedIndex;
-                List<Game> games = new List<Game>();
-                foreach (Game game in grid.SelectedItems)
+                progressWindow = new ProgressWindow();
+                progressWindow.Show(progress =>
                 {
-                    if (!game.Locked)
-                    {
-                        games.Add(game);
-                    }
-                }
-                foreach (Game game in games)
-                {
-                    dataFile.gamesCollection.Remove(game);
-                }
-
-                // update header
-                headerName.Text = dataFile.Header.Name;
-                headerDesc.Text = dataFile.Header.Description;
-                headerGameCount.Content = "(" + gamesGrid.Items.Count + " games)";
-
-                // select next row
-                if (index >= gamesGrid.Items.Count)
-                {
-                    index = gamesGrid.Items.Count - 1;
-                }
-                if (index >= 0)
-                {
-                    object item = gamesGrid.Items[index];
-                    if (item != null)
-                    {
-                        gamesGrid.SelectedItem = item;
-                        gamesGrid.ScrollIntoView(item);
-                        DataGridRow row = (DataGridRow)gamesGrid.ItemContainerGenerator.ContainerFromIndex(index);
-                        if (row != null)
-                        {
-                            row.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-                        }
-                    }
-                }
+                    UpdateGameGrid(progress);
+                });
 
                 // ok
                 e.Handled = true;
+            }
+        }
+
+        private void UpdateGameGrid(IProgress<string> progress)
+        {
+            bool mainThread = Application.Current.Dispatcher.Thread == System.Threading.Thread.CurrentThread;
+            if (mainThread)
+                UpdateGameGridRoutine(progress);
+            else
+                Application.Current.Dispatcher.Invoke(
+                    new Action(() => UpdateGameGridRoutine(progress)));
+        }
+
+        private void UpdateGameGridRoutine(IProgress<string> progress)
+        {
+            int index = gamesGrid.SelectedIndex;
+            int count = gamesGrid.SelectedItems.Count;
+            while (gamesGrid.SelectedItems.Count > 0)
+            {
+                Game game = (Game)gamesGrid.SelectedItems[0];
+                if (!game.Locked)
+                {
+                    dataFile.gamesCollection.Remove(game);
+                }
+                count--;
+                progress.Report(count.ToString());
+            }
+
+            // update header
+            headerName.Text = dataFile.Header.Name;
+            headerDesc.Text = dataFile.Header.Description;
+            headerGameCount.Content = "(" + gamesGrid.Items.Count + " games)";
+
+            // select next row
+            if (index >= gamesGrid.Items.Count)
+            {
+                index = gamesGrid.Items.Count - 1;
+            }
+            if (index >= 0)
+            {
+                object item = gamesGrid.Items[index];
+                if (item != null)
+                {
+                    gamesGrid.SelectedItem = item;
+                    gamesGrid.ScrollIntoView(item);
+                    DataGridRow row = (DataGridRow)gamesGrid.ItemContainerGenerator.ContainerFromIndex(index);
+                    if (row != null)
+                    {
+                        row.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                    }
+                }
             }
         }
 
