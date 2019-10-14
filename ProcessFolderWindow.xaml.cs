@@ -102,15 +102,20 @@ namespace RetroFilter
             {
                 string name = type == DataFile.Type.EmulationStation ?
                     Path.GetFileName(((Game)collection[i]).Path) : ((Game)collection[i]).Name;
-                string src_path = dirs[0] + Path.DirectorySeparatorChar + name;
-                string dst_path = dirs[1] + Path.DirectorySeparatorChar + name;
+                if (name.Length > 3 && name[name.Length - 3] != '.')
+                {
+                    name += ".zip";
+                }
+                string src_path = dirs[0] + name;
+                string dst_path = dirs[1] + name;
                 if (!File.Exists(src_path))
                 {
+                    Console.WriteLine("missing: " + name);
                     missing.Add(name);
                     continue;
                 }
 
-                Console.WriteLine("cp: " + src_path + " => " + dst_path);
+                Console.WriteLine("ok: " + src_path + " => " + dst_path);
                 File.Copy(src_path, dst_path);
                 ((BackgroundWorker)sender).ReportProgress(i);
             }

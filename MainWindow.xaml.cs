@@ -158,6 +158,8 @@ namespace RetroFilter
                 dialog.Filter = "Mame / ES (*.dat/*.xml)|*.dat;*.xml|All files (*.*)|*.*";
                 if (dialog.ShowDialog() == true)
                 {
+                    dataFile.Header.Name = headerName.Text;
+                    dataFile.Header.Description = headerDesc.Text;
                     if (!DataFile.Save(dataFile, gamesGrid.Items, dialog.FileName))
                     {
                         this.ShowMessageAsync("Ho No !", "Something went wrong with this file...");
