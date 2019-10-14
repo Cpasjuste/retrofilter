@@ -12,13 +12,6 @@ namespace RetroFilter
 
     }
 
-    // xml root: gameList, xml elements names: "game" (ES)
-    [System.Serializable()]
-    public class EmulationStationGame : Game
-    {
-
-    }
-
     // xml root: datafile, xml elements names: "game" (Mame)
     [System.Serializable()]
     public class Game
@@ -39,6 +32,10 @@ namespace RetroFilter
 
         [XmlElement(ElementName = "name")]
         public string NameES { get; set; }
+
+        // ES
+        [XmlElement(ElementName = "path")]
+        public string Path { get; set; }
 
         [XmlAttribute(AttributeName = "isbios")]
         public string IsBiosInternal { get; set; }
@@ -110,10 +107,6 @@ namespace RetroFilter
         // ES
         [XmlElement(ElementName = "hash")]
         public string Hash { get; set; }
-
-        // ES
-        [XmlElement(ElementName = "path")]
-        public string Path { get; set; }
 
         // ES
         [XmlElement(ElementName = "image")]

@@ -25,8 +25,6 @@ namespace RetroFilter
         [XmlElement("game", typeof(Game))]
         [XmlElement("machine", typeof(Machine))]
         public List<Game> Games { get; set; }
-        //[XmlIgnore]
-        //public ObservableCollection<Game> gamesCollection { get; set; }
         [XmlIgnore]
         public Type type = Type.MameGame;
 
@@ -75,8 +73,6 @@ namespace RetroFilter
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(DataFile),
                     new XmlRootAttribute { ElementName = "datafile" });
-                //serializer.UnknownElement += Serializer_UnknownElement;
-                //serializer.UnknownAttribute += Serializer_UnknownAttribute;
                 StreamReader reader = new StreamReader(path);
                 dataFile = (DataFile)serializer.Deserialize(reader);
                 reader.Close();
@@ -87,8 +83,6 @@ namespace RetroFilter
                 {
                     XmlSerializer serializer = new XmlSerializer(typeof(DataFile),
                         new XmlRootAttribute { ElementName = "gameList" });
-                    //serializer.UnknownElement += Serializer_UnknownElement;
-                    //serializer.UnknownAttribute += Serializer_UnknownAttribute;
                     StreamReader reader = new StreamReader(path);
                     dataFile = (DataFile)serializer.Deserialize(reader);
                     dataFile.type = Type.EmulationStation;

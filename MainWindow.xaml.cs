@@ -4,11 +4,7 @@ using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 using System.Windows.Input;
 using System.Windows.Data;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.Win32;
-using System;
-using System.Threading;
-using System.Collections.Generic;
 
 namespace RetroFilter
 {
@@ -43,6 +39,7 @@ namespace RetroFilter
                     }
                 }
 
+                // refresh grid view
                 gamesGrid.CommitEdit();
                 CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
 
@@ -51,7 +48,7 @@ namespace RetroFilter
                 headerDesc.Text = dataFile.Header.Description;
                 headerGameCount.Content = "(" + gamesGrid.Items.Count + " games)";
 
-                // select next row
+                // auto-select next row
                 if (index >= gamesGrid.Items.Count)
                 {
                     index = gamesGrid.Items.Count - 1;
@@ -163,7 +160,7 @@ namespace RetroFilter
                 {
                     if (!DataFile.Save(dataFile, gamesGrid.Items, dialog.FileName))
                     {
-                        this.ShowMessageAsync("Oups", "Something went wrong with this file...");
+                        this.ShowMessageAsync("Ho No !", "Something went wrong with this file...");
                     }
                 }
             }
@@ -171,13 +168,8 @@ namespace RetroFilter
 
         private void btnProcessFolder_Click(object sender, RoutedEventArgs e)
         {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = true;
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                // TODO:
-                MessageBox.Show("Todo!");
-            }
+            ProcessWindow processWindow = new ProcessWindow();
+            processWindow.Show(dataFile.type, gamesGrid.Items); ;
         }
 
         private void btnSupport_Click(object sender, RoutedEventArgs e)

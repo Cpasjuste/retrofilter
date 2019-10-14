@@ -53,8 +53,13 @@
                             <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Unlock" />
                         </StackPanel>
                     </Button>
-                    <Button ToolTip="Save datafile" 
-                        Click="btnSaveDat_Click" BorderThickness="0" Foreground="Orange" Background="Transparent">
+                    <Button ToolTip="Load a new datafile" Click="btnLoadDat_Click" BorderThickness="0" Foreground="Orange" Background="Transparent">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconModern Width="20" Height="20" Kind="PageUpload" />
+                            <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Load" />
+                        </StackPanel>
+                    </Button>
+                    <Button ToolTip="Save current list to datafile" Click="btnSaveDat_Click" BorderThickness="0" Foreground="Orange" Background="Transparent">
                         <StackPanel Orientation="Horizontal">
                             <iconPacks:PackIconModern Width="18" Height="18" Kind="Save" />
                             <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Save" />
