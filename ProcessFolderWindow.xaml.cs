@@ -118,6 +118,12 @@ namespace RetroFilter
                 Console.WriteLine("ok: " + src_path + " => " + dst_path);
                 File.Copy(src_path, dst_path);
                 ((BackgroundWorker)sender).ReportProgress(i);
+
+                if (missing.Count > 0)
+                {
+                    var window = Application.Current.Windows.OfType<MetroWindow>().FirstOrDefault();
+                    Application.Current.Dispatcher.InvokeAsync(() => window.ShowMessageAsync("Ho No !", "You are missing a few games (" + missing.Count + ")..."));
+                }
             }
         }
 
