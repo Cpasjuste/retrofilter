@@ -101,7 +101,7 @@ namespace RetroFilter
             for (int i = 0; i < collection.Count; i++)
             {
                 string name = type == DataFile.Type.EmulationStation ?
-                    Path.GetFileName(((Game)collection[i]).Path) : ((Game)collection[i]).Name;
+                    Path.GetFileName(((Game)collection[i]).path) : ((Game)collection[i]).name;
                 if (name.Length < 4 || name[name.Length - 3] != '.')
                 {
                     name += ".zip";

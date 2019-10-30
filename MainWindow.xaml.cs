@@ -96,11 +96,11 @@ namespace RetroFilter
                 e.Column.Visibility = Visibility.Hidden;
             }
 
-            if (name == "NameES")
+            if (name == "nameES")
             {
-                e.Column.Header = "Name";
+                e.Column.Header = "name";
             }
-            else if (name == "Desc")
+            else if (name == "desc")
             {
                 e.Column.Width = 400;
             }
@@ -135,7 +135,7 @@ namespace RetroFilter
                 dataFile = DataFile.Load(openFileDialog.FileName);
                 if (dataFile != null)
                 {
-                    gamesGrid.ItemsSource = dataFile.Games; //dataFile.gamesCollection;
+                    gamesGrid.ItemsSource = dataFile.Games;
                     loadDat.Visibility = Visibility.Hidden;
                     headerPanel.Visibility = Visibility.Visible;
                     gamesGrid.Visibility = Visibility.Visible;

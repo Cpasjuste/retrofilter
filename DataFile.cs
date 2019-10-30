@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -17,6 +16,7 @@ namespace RetroFilter
         {
             MameGame,
             MameMachine,
+            Mame2003,
             EmulationStation
         };
 
@@ -32,34 +32,37 @@ namespace RetroFilter
         {
             List<string> filters = new List<string>();
 
+            // hide non handled items
             filters.AddRange(new List<string>() {
-                "IsBiosInternal","Driver" ,"BiosSets",
-                "Roms" ,"DeviceRefs","Samples","IsDeleteEnabled"
+                "isbios_","isdevice_","runnable_","driver" ,"biosset",
+                "rom" ,"device_ref","sample", "disk", "chip", "video",
+                "sound", "input", "dipswitch"
             });
 
-            if (type == Type.MameGame || type == Type.MameMachine)
+            if (type != Type.EmulationStation)
             {
                 filters.AddRange(new List<string>()
-                {  "NameES", "Desc", "Source", "Image", "Thumbnail", "ReleaseDate",
-                    "Path", "Developer", "Region", "RomType", "Id",
-                    "Publisher", "Rating", "Players", "Hash"});
+                {  "nameES", "desc", "source", "image", "thumbnail", "releasedate",
+                    "path", "developer", "region", "romtype", "id",
+                    "publisher", "rating", "players", "hash"});
             }
 
             if (type == Type.MameGame)
             {
                 filters.AddRange(new List<string>()
-                {  "SourceFile", "IsDevice", "Runnable" });
+                {  "sourcefile", "isdevice", "runnable" });
             }
-            else if (type == Type.MameMachine)
+            else if (type == Type.Mame2003)
             {
-
+                filters.AddRange(new List<string>()
+                {  "sourcefile" });
             }
             else if (type == Type.EmulationStation)
             {
                 filters.AddRange(new List<string>()
-                {  "Name", "SourceFile", "IsDevice", "Runnable",
-                    "IsBios", "Year", "Description",
-                    "Manufacturer", "RomOf", "CloneOf", "IsRom", "IsClone" });
+                {  "name", "sourcefile", "isdevice", "runnable",
+                    "isbios", "year", "description","manufacturer",
+                    "romof", "cloneof", "isrom", "isclone" });
             }
 
             return filters;
@@ -67,33 +70,32 @@ namespace RetroFilter
 
         public static DataFile Load(string path)
         {
-            DataFile dataFile = null;
-
-            try
+            // mame.dat
+            DataFile dataFile = Load(path, "datafile");
+            if (dataFile == null)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(DataFile),
-                    new XmlRootAttribute { ElementName = "datafile" });
-                StreamReader reader = new StreamReader(path);
-                dataFile = (DataFile)serializer.Deserialize(reader);
-                reader.Close();
+                // mame2003-plus.xml
+                Console.WriteLine("trying mame2003 format...");
+                if ((dataFile = Load(path, "mame")) != null)
+                {
+                    dataFile.type = Type.Mame2003;
+                }
             }
-            catch
-            {
-                try
-                {
-                    XmlSerializer serializer = new XmlSerializer(typeof(DataFile),
-                        new XmlRootAttribute { ElementName = "gameList" });
-                    StreamReader reader = new StreamReader(path);
-                    dataFile = (DataFile)serializer.Deserialize(reader);
-                    dataFile.type = Type.EmulationStation;
-                    reader.Close();
-                }
-                catch
-                {
 
-                    Console.WriteLine("Could not parse file: " + path);
-                    return null;
+            if (dataFile == null)
+            {
+                // gamelist.xml
+                Console.WriteLine("trying gamelist.xml format...");
+                if ((dataFile = Load(path, "gameList")) != null)
+                {
+                    dataFile.type = Type.EmulationStation;
                 }
+            }
+
+            if (dataFile == null)
+            {
+                Console.WriteLine("Could not parse file: " + path);
+                return null;
             }
 
             if (dataFile.Games.Count <= 0)
@@ -114,20 +116,17 @@ namespace RetroFilter
             Dictionary<string, string> catverDic = catverLines.Select(item => item.Split('=')).ToDictionary(s => s[0], s => s[1]);
             foreach (Game game in dataFile.Games)
             {
-                string name = string.IsNullOrEmpty(game.Name) ? game.NameES : game.Name;
-                if (!catverDic.TryGetValue(name, out string genre) && game.IsClone)
+                string name = string.IsNullOrEmpty(game.name) ? game.nameES : game.name;
+                if (!catverDic.TryGetValue(name, out string genre) && game.isclone)
                 {
-                    catverDic.TryGetValue(game.CloneOf, out genre);
+                    catverDic.TryGetValue(game.cloneof, out genre);
                 }
 
                 if (!string.IsNullOrEmpty(genre))
                 {
-                    game.Genre = genre;
+                    game.genre = genre;
                 }
             }
-
-            // create ObservableCollection for datagrid
-            //dataFile.gamesCollection = new ObservableCollection<Game>(dataFile.Games);
 
             // EmulationStation seems to have no header
             if (dataFile.Header == null)
@@ -149,6 +148,10 @@ namespace RetroFilter
             try
             {
                 string root = dataFile.type == Type.EmulationStation ? "gameList" : "datafile";
+                if (dataFile.type == Type.Mame2003)
+                {
+                    root = "mame";
+                }
                 XmlRootAttribute xmlRoot = new XmlRootAttribute(root);
                 XmlSerializer serializer = new XmlSerializer(typeof(DataFile), xmlRoot);
                 DataFile df = new DataFile();
@@ -165,6 +168,26 @@ namespace RetroFilter
                 return false;
             }
             return true;
+        }
+
+        private static DataFile Load(string path, string root)
+        {
+            DataFile dataFile = null;
+
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(DataFile),
+                    new XmlRootAttribute { ElementName = root });
+                StreamReader reader = new StreamReader(path);
+                dataFile = (DataFile)serializer.Deserialize(reader);
+                reader.Close();
+            }
+            catch
+            {
+                Console.WriteLine("Could not parse file: " + path);
+            }
+
+            return dataFile;
         }
 
         private static void Serializer_UnknownElement(object sender, XmlElementEventArgs e)
