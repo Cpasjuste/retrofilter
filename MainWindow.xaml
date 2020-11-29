@@ -76,7 +76,7 @@
             </StackPanel>
             <DataGrid Name="gamesGrid" Grid.Row="1" ItemsSource="{Binding}" AutoGenerateColumns="True"
                       CanUserAddRows="False" CanUserDeleteRows="True" dgx:DataGridFilter.IsAutoFilterEnabled="True"
-                      CommandManager.PreviewCanExecute="gamesGrid_PreviewCanExecute" >
+                      CommandManager.PreviewCanExecute="gamesGrid_PreviewCanExecute" RowHeight="0" >
                 <DataGrid.ColumnHeaderStyle>
                     <Style BasedOn="{StaticResource MetroDataGridColumnHeader}" TargetType="{x:Type DataGridColumnHeader}"/>
                 </DataGrid.ColumnHeaderStyle>

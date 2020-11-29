@@ -104,6 +104,8 @@ namespace RetroFilter
         [XmlElement]
         public string image { get; set; }
         [XmlElement]
+        public string video { get; set; }
+        [XmlElement]
         public string thumbnail { get; set; }
 
         [XmlElement]
@@ -122,8 +124,8 @@ namespace RetroFilter
         public List<disk> disk { get; set; }
         [XmlElement]
         public List<chip> chip { get; set; }
-        [XmlElement]
-        public video video { get; set; }
+        //[XmlElement]
+        //public video video { get; set; }
         [XmlElement]
         public sound sound { get; set; }
         [XmlElement]

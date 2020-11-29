@@ -35,7 +35,7 @@ namespace RetroFilter
             // hide non handled items
             filters.AddRange(new List<string>() {
                 "isbios_","isdevice_","runnable_","driver" ,"biosset",
-                "rom" ,"device_ref","sample", "disk", "chip", "video",
+                "rom" ,"device_ref","sample", "disk", "chip", //"video", <- now used es/recalbox
                 "sound", "input", "dipswitch"
             });
 
