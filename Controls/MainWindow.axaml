@@ -6,7 +6,7 @@
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="450"
-        x:Class="RetroFilter.MainWindow"
+        x:Class="RetroFilter.Controls.MainWindow"
         Width="800" Height="600"
         Title="RetroFilter">
     <Grid RowDefinitions="Auto,*,Auto" x:Name="MainGrid">

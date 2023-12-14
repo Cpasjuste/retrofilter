@@ -4,8 +4,9 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using RetroFilter.Sources;
 
-namespace RetroFilter;
+namespace RetroFilter.Controls;
 
 public partial class MainWindow : Window
 {

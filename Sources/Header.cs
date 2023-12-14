@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 
-namespace RetroFilter
+namespace RetroFilter.Sources
 {
     [Serializable]
     public class Header : INotifyPropertyChanged

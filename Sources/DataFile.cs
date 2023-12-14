@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 
-namespace RetroFilter;
+namespace RetroFilter.Sources;
 
 [Serializable]
 [XmlRoot("datafile", Namespace = "", IsNullable = false)]

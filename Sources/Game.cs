@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace RetroFilter;
+namespace RetroFilter.Sources;
 
 // xml root: datafile, xml elements names: "machine" (Mame)
 [System.Serializable]

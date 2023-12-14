@@ -28,4 +28,11 @@
       <None Remove="Assets\catver_0.261.ini" />
       <AvaloniaResource Include="Assets\catver_0.261.ini" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Controls\MainWindow.axaml.cs">
+        <DependentUpon>MainWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
 </Project>

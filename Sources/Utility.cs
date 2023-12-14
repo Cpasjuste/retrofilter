@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using Avalonia.Platform;
 
-namespace RetroFilter;
+namespace RetroFilter.Sources;
 
 public abstract class Utility
 {
