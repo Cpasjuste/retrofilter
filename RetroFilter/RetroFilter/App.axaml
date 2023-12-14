@@ -1,0 +1,17 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
+             RequestedThemeVariant="Dark"
+             x:Class="RetroFilter.App">
+    <Application.Styles>
+        <styling:FluentAvaloniaTheme PreferSystemTheme="False" PreferUserAccentColor="True" CustomAccentColor="OrangeRed"/>
+    </Application.Styles>
+    <!--
+    <Application.Resources>
+        <Color x:Key="SystemAccentColor">Red</Color>
+        <Color x:Key="SystemAccentColorDark1">Red</Color>
+        <Color x:Key="SystemAccentColorDark2">Red</Color>
+        <Color x:Key="SystemAccentColorDark3">Red</Color>
+    </Application.Resources>
+    -->
+</Application>

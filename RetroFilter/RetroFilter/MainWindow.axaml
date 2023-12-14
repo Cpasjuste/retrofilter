@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ic="using:FluentAvalonia.FluentIcons"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="450"
+        x:Class="RetroFilter.MainWindow"
+        Width="800" Height="600"
+        Title="RetroFilter">
+    <Grid RowDefinitions="Auto,*,Auto" x:Name="MainGrid">
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <ui:CommandBarButton IsCompact="True" IsEnabled="True" Foreground="Orange"
+                                 IconSource="{ic:FluentIconSource ArrowUpload24Filled}" Label="Load"
+                                 ToolTip.Tip="Load a new database" Click="btnLoadDat_Click" />
+            <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
+                                 IconSource="{ic:FluentIconSource LockClosed24Regular}" Label="Lock"
+                                 ToolTip.Tip="Lock all games" Click="btnLockAll_Click" />
+            <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
+                                 IconSource="{ic:FluentIconSource LockOpen24Regular}" Label="Unlock"
+                                 ToolTip.Tip="Unlock all games" Click="btnUnlockAll_Click" />
+            <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
+                                 IconSource="{ic:FluentIconSource Save24Filled}" Label="Save"
+                                 ToolTip.Tip="Save database" Click="btnSaveDat_Click" />
+            <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
+                                 IconSource="{ic:FluentIconSource Folder24Filled}" Label="Process"
+                                 ToolTip.Tip="Process a rom folder" Click="btnProcessFolder_Click" />
+        </StackPanel>
+        <DataGrid Grid.Row="1" x:Name="GamesGrid" ColumnWidth="100" AutoGenerateColumns="True" SelectionMode="Extended"
+                  CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True" IsReadOnly="False"
+                  ItemsSource="{Binding  DataFile.Games, Mode=TwoWay}"
+                   KeyUp="GamesGrid_OnKeyUp"/>
+        <Border Grid.Row="2" Background="Black">
+            <TextBlock x:Name="HeaderText" VerticalAlignment="Center" Margin="4"
+                       HorizontalAlignment="Right" Text="No database loaded yet..." />
+        </Border>
+    </Grid>
+</Window>
