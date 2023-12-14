@@ -1,9 +1,11 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using FluentAvalonia.UI.Controls;
 using RetroFilter.Sources;
 
 namespace RetroFilter.Controls;
@@ -48,24 +50,25 @@ public partial class MainWindow : Window
 
     private void btnLockAll_Click(object? sender, RoutedEventArgs? e)
     {
-        foreach (Game game in GamesGrid.ItemsSource)
-        {
-            game.Locked = true;
-        }
+        _ = sender;
+        _ = e;
+        foreach (Game game in GamesGrid.ItemsSource) game.Locked = true;
         //CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
     }
 
     private void btnUnlockAll_Click(object? sender, RoutedEventArgs e)
     {
-        foreach (Game game in GamesGrid.ItemsSource)
-        {
-            game.Locked = false;
-        }
+        _ = sender;
+        _ = e;
+        foreach (Game game in GamesGrid.ItemsSource) game.Locked = false;
         //CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
     }
 
     private async void btnLoadDat_Click(object? sender, RoutedEventArgs e)
     {
+        _ = sender;
+        _ = e;
+
         var topLevel = GetTopLevel(this);
         if (topLevel == null) return;
 
@@ -77,64 +80,38 @@ public partial class MainWindow : Window
 
         if (files.Count < 1) return;
 
-        Console.WriteLine("btnLoadDat_Click: " + files[0].TryGetLocalPath());
-
-        DataFile = DataFile.Load(files[0].TryGetLocalPath()!) ?? new DataFile();
-        if (DataFile != null)
+        var path = files[0].TryGetLocalPath();
+        if (path == null)
         {
-            GamesGrid.ItemsSource = DataFile.Games;
-            HeaderText.Text = DataFile.Header.Name + " | " + DataFile.Header.Description
-                              + " (" + DataFile.Games.Count + " games)";
-            //MainGrid.IsVisible = true;
-        }
-        else
-        {
-            //this.ShowMessageAsync("Oups", "Something went wrong with this file...");
-            //loadDat.Visibility = Visibility.Visible;
-            //headerPanel.Visibility = Visibility.Hidden;
-            //gamesGrid.Visibility = Visibility.Hidden;
+            await ShowMessageBox("Oops", "Could not open database from " + files[0].Path);
+            return;
         }
 
-        /*
-        // Open reading stream from the first file.
-        await using var stream = await files[0].OpenReadAsync();
-        using var streamReader = new StreamReader(stream);
-        // Reads all the content of file as a text.
-        var fileContent = await streamReader.ReadToEndAsync();
-        */
-
-        /*
-        OpenFileDialog openFileDialog = new OpenFileDialog();
-        openFileDialog.Filter = "Mame / ES (*.dat/*.xml)|*.dat;*.xml|All files (*.*)|*.*";
-        if (openFileDialog.ShowDialog() == true)
+        var db = DataFile.Load(path);
+        if (db == null)
         {
-            dataFile = DataFile.Load(openFileDialog.FileName);
-            if (dataFile != null)
-            {
-                gamesGrid.ItemsSource = dataFile.Games;
-                loadDat.Visibility = Visibility.Hidden;
-                headerPanel.Visibility = Visibility.Visible;
-                gamesGrid.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                this.ShowMessageAsync("Oups", "Something went wrong with this file...");
-                loadDat.Visibility = Visibility.Visible;
-                headerPanel.Visibility = Visibility.Hidden;
-                gamesGrid.Visibility = Visibility.Hidden;
-            }
+            await ShowMessageBox("Oops", "Could not load database from " + files[0].Path);
+            return;
         }
-        */
+
+        DataFile = db;
+        GamesGrid.ItemsSource = DataFile.Games;
+        HeaderText.Text = DataFile.Header.Name + " | " + DataFile.Header.Description
+                          + " (" + DataFile.Games.Count + " games)";
     }
 
     private void btnSaveDat_Click(object? sender, RoutedEventArgs e)
     {
-        throw new System.NotImplementedException();
+        _ = sender;
+        _ = e;
+        throw new NotImplementedException();
     }
 
     private void btnProcessFolder_Click(object? sender, RoutedEventArgs e)
     {
-        throw new System.NotImplementedException();
+        _ = sender;
+        _ = e;
+        throw new NotImplementedException();
     }
 
     // TODO: async
@@ -149,5 +126,19 @@ public partial class MainWindow : Window
         {
             DataFile.Games.Remove(game);
         }
+    }
+
+    private Task<object> ShowMessageBox(string title, string content, bool indeterminate = false)
+    {
+        MainTaskDialog.Header = title;
+        MainTaskDialog.Content = Environment.NewLine + content;
+        MainTaskDialog.ShowProgressBar = indeterminate;
+        MainTaskDialog.SetProgressBarState(0, TaskDialogProgressState.Indeterminate);
+        foreach (var btn in MainTaskDialog.Buttons)
+        {
+            btn.IsEnabled = !indeterminate;
+        }
+
+        return MainTaskDialog.ShowAsync(true);
     }
 }
