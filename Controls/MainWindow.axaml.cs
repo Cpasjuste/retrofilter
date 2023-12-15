@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -20,6 +21,16 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         GameGrid.AutoGeneratingColumn += OnAutoGeneratingColumn;
+
+        if (Design.IsDesignMode)
+        {
+            Database.FilteredGames = new ObservableCollection<Game>
+            {
+                new() { Name = "Super Game" },
+                new() { Name = "Super Game 2" }
+            };
+            GameGrid.ItemsSource = Database.FilteredGames;
+        }
     }
 
     private void OnAutoGeneratingColumn(object? sender, DataGridAutoGeneratingColumnEventArgs? e)
@@ -27,22 +38,21 @@ public partial class MainWindow : Window
         if (e == null) return;
 
         var headerName = e.Column.Header.ToString();
-        if (headerName == null) return;
-        if (Database.GetFilteredColumns().Contains(e.Column.Header.ToString()!))
+        if (string.IsNullOrEmpty(headerName) || Database.GetFilteredColumns().Contains(headerName))
         {
-            //Console.WriteLine("OnAutoGeneratingColumn: disabling column: " + e.Column.Header);
             e.Column.IsVisible = false;
             e.Cancel = true;
             return;
         }
 
-        if (headerName == "nameES")
+        switch (headerName)
         {
-            e.Column.Header = "Name";
-        }
-        else if (headerName is "Desc" or "Description")
-        {
-            e.Column.Width = new DataGridLength(300);
+            case "NameES":
+                e.Column.Header = "Name";
+                break;
+            case "Desc" or "Description":
+                e.Column.Width = new DataGridLength(300);
+                break;
         }
 
         e.Column.IsReadOnly = false;
@@ -70,7 +80,7 @@ public partial class MainWindow : Window
         MimeTypes = new[] { "dat/*" }
     };
 
-    private async void btnLoadDat_Click(object? sender, RoutedEventArgs e)
+    private async void OnLoadDatFile(object? sender, RoutedEventArgs e)
     {
         _ = sender;
         _ = e;
@@ -121,8 +131,24 @@ public partial class MainWindow : Window
         throw new NotImplementedException();
     }
 
+    public async void SortDataGrid(object? headerName)
+    {
+        //Console.WriteLine("SortDataGrid: " + GameGrid.Columns[0].Header);
+        var col = GameGrid.Columns.FirstOrDefault(c => c.Header == headerName);
+        if (col is not DataGridTextColumn tc) return;
+        Console.WriteLine("SortDataGrid: column == " + tc.Header);
+
+        //tc.SortMemberPath = col.Header.ToString();
+        //tc.Sort();
+
+        // crappy working, Sort doesn't work when CanUserSortColumns is false...
+        GameGrid.CanUserSortColumns = true;
+        await Task.Delay(1);
+        GameGrid.CanUserSortColumns = false;
+    }
+
     // TODO: async
-    private void GamesGrid_OnKeyUp(object? sender, KeyEventArgs e)
+    private void OnDataGridKeyUp(object? sender, KeyEventArgs e)
     {
         if (e.Key != Key.Delete) return;
         if (sender is not DataGrid grid) return;
@@ -145,7 +171,8 @@ public partial class MainWindow : Window
         if (e.Source == null) return;
 
         // get column header name
-        var header = Utility.FindParent<DataGridColumnHeader>((TextBox)e.Source);
+        var textBox = (TextBox)e.Source;
+        var header = Utility.FindParent<DataGridColumnHeader>(textBox);
         var field = (string)header?.Content!;
 
         // get filtering text
@@ -166,11 +193,19 @@ public partial class MainWindow : Window
         Database.FilteredGames?.Clear();
         foreach (var game in games) Database.FilteredGames?.Add(game);
 
+        if (string.IsNullOrEmpty(text)) textBox.IsVisible = false;
+
         // update header
         HeaderText.Text = Database.Header.Name + " | " + Database.Header.Description
                           + " (" + Database.FilteredGames?.Count + " games)";
 
         Console.WriteLine("OnDataGridHeaderTextChanged: text = {0}, games: {1}", text, Database.FilteredGames?.Count);
+    }
+
+    private void OnGameGridHeaderTextBoxLostFocus(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not TextBox tb) return;
+        if (string.IsNullOrEmpty(tb.Text)) tb.IsVisible = false;
     }
 
     private Task<object> ShowMessageBox(string title, string content, bool indeterminate = false)
