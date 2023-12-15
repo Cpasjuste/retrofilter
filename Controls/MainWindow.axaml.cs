@@ -12,14 +12,14 @@ namespace RetroFilter.Controls;
 
 public partial class MainWindow : Window
 {
-    public DataFile DataFile { get; private set; } = new();
+    public DataFile Database { get; private set; } = new();
 
     public MainWindow()
     {
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         InitializeComponent();
 
-        GamesGrid.AutoGeneratingColumn += OnAutoGeneratingColumn;
+        GameGrid.AutoGeneratingColumn += OnAutoGeneratingColumn;
     }
 
     private void OnAutoGeneratingColumn(object? sender, DataGridAutoGeneratingColumnEventArgs? e)
@@ -28,7 +28,7 @@ public partial class MainWindow : Window
 
         var headerName = e.Column.Header.ToString();
         if (headerName == null) return;
-        if (DataFile.GetFilteredColumns().Contains(e.Column.Header.ToString()!))
+        if (Database.GetFilteredColumns().Contains(e.Column.Header.ToString()!))
         {
             //Console.WriteLine("OnAutoGeneratingColumn: disabling column: " + e.Column.Header);
             e.Column.IsVisible = false;
@@ -52,7 +52,7 @@ public partial class MainWindow : Window
     {
         _ = sender;
         _ = e;
-        foreach (Game game in GamesGrid.ItemsSource) game.Locked = true;
+        //foreach (Game game in GameGrid.ItemsSource) game.Locked = true;
         //CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
     }
 
@@ -60,7 +60,7 @@ public partial class MainWindow : Window
     {
         _ = sender;
         _ = e;
-        foreach (Game game in GamesGrid.ItemsSource) game.Locked = false;
+        //foreach (Game game in GameGrid.ItemsSource) game.Locked = false;
         //CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
     }
 
@@ -94,10 +94,10 @@ public partial class MainWindow : Window
             return;
         }
 
-        DataFile = db;
-        GamesGrid.ItemsSource = DataFile.Games;
-        HeaderText.Text = DataFile.Header.Name + " | " + DataFile.Header.Description
-                          + " (" + DataFile.Games.Count + " games)";
+        Database = db;
+        GameGrid.ItemsSource = Database.FilteredGames;
+        HeaderText.Text = Database.Header.Name + " | " + Database.Header.Description
+                          + " (" + Database.Games.Count + " games)";
     }
 
     private void btnSaveDat_Click(object? sender, RoutedEventArgs e)
@@ -124,8 +124,46 @@ public partial class MainWindow : Window
         var games = grid.SelectedItems.Cast<Game>().ToList();
         foreach (var game in games)
         {
-            DataFile.Games.Remove(game);
+            Database.Games.Remove(game);
+            Database.FilteredGames?.Remove(game);
         }
+
+        HeaderText.Text = Database.Header.Name + " | " + Database.Header.Description
+                          + " (" + Database.FilteredGames?.Count + " games)";
+    }
+
+    private void OnDataGridHeaderTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        _ = sender;
+        if (e.Source == null) return;
+
+        // get column header name
+        var header = Utility.FindParent<DataGridColumnHeader>((TextBox)e.Source);
+        var field = (string)header?.Content!;
+
+        // get filtering text
+        var text = ((TextBox)e.Source).Text;
+
+        // filter games
+        var games = string.IsNullOrEmpty(text)
+            ? Database.Games
+            : Database.Games.Where(game =>
+            {
+                var prop = game.GetType().GetProperty(field);
+                if (prop == null) return false;
+                var value = (string)prop.GetValue(game)!;
+                return value.ToLower().Contains(text.ToLower());
+            });
+
+        // update games
+        Database.FilteredGames?.Clear();
+        foreach (var game in games) Database.FilteredGames?.Add(game);
+
+        // update header
+        HeaderText.Text = Database.Header.Name + " | " + Database.Header.Description
+                          + " (" + Database.FilteredGames?.Count + " games)";
+
+        Console.WriteLine("OnDataGridHeaderTextChanged: text = {0}, games: {1}", text, Database.FilteredGames?.Count);
     }
 
     private Task<object> ShowMessageBox(string title, string content, bool indeterminate = false)

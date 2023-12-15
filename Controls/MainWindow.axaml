@@ -9,6 +9,39 @@
         x:Class="RetroFilter.Controls.MainWindow"
         Width="800" Height="600"
         Title="RetroFilter">
+    <Window.Resources>
+        <DataTemplate x:Key="GameGridHeaderTemplate">
+            <Grid ColumnDefinitions="*, Auto">
+                <Panel Grid.Column="0" DockPanel.Dock="Left" Background="Transparent"
+                       Margin="8, 0, 0, 0" VerticalAlignment="Stretch"
+                       ToolTip.Tip="{Binding StringFormat='Click to filter game list by {0}'}">
+                    <Interaction.Behaviors>
+                        <EventTriggerBehavior EventName="Tapped">
+                            <ChangePropertyAction TargetObject="GameGridHeaderTextBlock"
+                                                  PropertyName="IsVisible" Value="False" />
+                            <ChangePropertyAction TargetObject="GameGridHeaderTextBox"
+                                                  PropertyName="IsVisible" Value="True" />
+                            <FocusControlAction TargetControl="GameGridHeaderTextBox" />
+                        </EventTriggerBehavior>
+                        <EventTriggerBehavior EventName="PointerExited">
+                            <ChangePropertyAction TargetObject="GameGridHeaderTextBlock"
+                                                  PropertyName="IsVisible" Value="True" />
+                            <ChangePropertyAction TargetObject="GameGridHeaderTextBox"
+                                                  PropertyName="IsVisible" Value="False" />
+                        </EventTriggerBehavior>
+                    </Interaction.Behaviors>
+                    <TextBlock Name="GameGridHeaderTextBlock" Text="{Binding }" IsHitTestVisible="False"
+                               VerticalAlignment="Center" />
+                    <TextBox Name="GameGridHeaderTextBox" IsVisible="False" TextChanged="OnDataGridHeaderTextChanged" />
+                </Panel>
+                <Panel Grid.Column="1" Background="Transparent"
+                       HorizontalAlignment="Right" Margin="8">
+                    <ui:IconSourceElement IconSource="{ic:FluentIconSource ArrowDown12Filled}"
+                                          Margin="0" HorizontalAlignment="Right" />
+                </Panel>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
     <Panel>
         <Grid RowDefinitions="Auto,*,Auto" x:Name="MainGrid">
             <StackPanel Grid.Row="0" Orientation="Horizontal">
@@ -28,12 +61,34 @@
                                      IconSource="{ic:FluentIconSource Folder24Filled}" Label="Process"
                                      ToolTip.Tip="Process a rom folder" Click="btnProcessFolder_Click" />
             </StackPanel>
-            <DataGrid Grid.Row="1" x:Name="GamesGrid" ColumnWidth="100" AutoGenerateColumns="True"
-                      SelectionMode="Extended"
-                      CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="True"
-                      IsReadOnly="False"
-                      ItemsSource="{Binding  DataFile.Games, Mode=TwoWay}"
-                      KeyUp="GamesGrid_OnKeyUp" />
+            <DataGrid Grid.Row="1" x:Name="GameGrid" AutoGenerateColumns="True"
+                      IsReadOnly="False" SelectionMode="Extended" ColumnWidth="100"
+                      CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="False"
+                      ItemsSource="{Binding  Database.FilteredGames}"
+                      KeyUp="GamesGrid_OnKeyUp">
+                <DataGrid.Styles>
+                    <Style Selector="DataGridColumnHeader">
+                        <Setter Property="Template">
+                            <ControlTemplate>
+                                <Border
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{TemplateBinding CornerRadius}">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <ContentPresenter Grid.Column="0"
+                                                          Content="{TemplateBinding Content}"
+                                                          ContentTemplate="{StaticResource GameGridHeaderTemplate}" />
+                                        <Rectangle Grid.Column="1" Width="1" VerticalAlignment="Stretch"
+                                                   Fill="{TemplateBinding SeparatorBrush}"
+                                                   IsVisible="{TemplateBinding AreSeparatorsVisible}" />
+                                    </Grid>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter>
+                    </Style>
+                </DataGrid.Styles>
+            </DataGrid>
             <Border Grid.Row="2" Background="Black">
                 <TextBlock x:Name="HeaderText" VerticalAlignment="Center" Margin="4"
                            HorizontalAlignment="Right" Text="No database loaded yet..." />

@@ -30,14 +30,17 @@ public class DataFile : INotifyPropertyChanged
         set => SetField(ref _header, value);
     }
 
-    private ObservableCollection<Game> _games = new();
-
     [XmlElement("game", typeof(Game))]
     [XmlElement("machine", typeof(Machine))]
-    public ObservableCollection<Game> Games
+    public List<Game> Games { get; set; } = new();
+
+    private ObservableCollection<Game>? _filteredGames;
+
+    [XmlIgnore]
+    public ObservableCollection<Game>? FilteredGames
     {
-        get => _games;
-        set => SetField(ref _games, value);
+        get => _filteredGames;
+        set => SetField(ref _filteredGames, value);
     }
 
     [XmlIgnore]
@@ -50,7 +53,7 @@ public class DataFile : INotifyPropertyChanged
         // hide non handled items
         filters.AddRange(new List<string>
         {
-            "IsBiosString", "IsDeviceString", "Driver", "BiosSets",
+            "Driver", "BiosSets",
             "Roms", "DeviceRefs", "Samples", "Disks", "Chips", "Video",
             "Sound", "Input", "DipSwitches"
         });
@@ -114,7 +117,7 @@ public class DataFile : INotifyPropertyChanged
 
         if (dataFile == null)
         {
-            Console.WriteLine("Could not parse file: " + path);
+            Console.WriteLine("Could not parse database file from " + path);
             return null;
         }
 
@@ -123,6 +126,9 @@ public class DataFile : INotifyPropertyChanged
             Console.WriteLine("Could not parse gamelist: no games found");
             return null;
         }
+
+        // filtered game list
+        dataFile.FilteredGames = new ObservableCollection<Game>(dataFile.Games);
 
         // is datafile a mame "game" or "machine" nodes
         if (dataFile.Games[0] is Machine)
@@ -137,7 +143,8 @@ public class DataFile : INotifyPropertyChanged
         foreach (var game in dataFile.Games)
         {
             var name = string.IsNullOrEmpty(game.Name) ? game.NameEs : game.Name;
-            if (!dic.TryGetValue(name, out var genre) && game.IsClone) dic.TryGetValue(game.CloneOf, out genre);
+            if (!dic.TryGetValue(name, out var genre) && game.IsClone == "yes")
+                dic.TryGetValue(game.CloneOf, out genre);
             if (!string.IsNullOrEmpty(genre)) game.Genre = genre;
         }
 

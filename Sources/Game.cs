@@ -13,8 +13,8 @@ public class Machine : Game
 [System.Serializable]
 public class Game
 {
-    [XmlIgnore]
-    public bool Locked { get; set; }
+    //[XmlIgnore]
+    //public bool Locked { get; set; }
 
     // ES
     [XmlAttribute(AttributeName = "id")]
@@ -41,21 +41,21 @@ public class Game
     public string Path { get; set; } = string.Empty;
 
     [XmlAttribute(AttributeName = "isbios")]
-    public string IsBiosString { get; set; } = string.Empty;
+    public string IsBios { get; set; } = string.Empty;
 
-    [XmlIgnore]
-    public bool IsBios => IsBiosString == "yes";
+    //[XmlIgnore]
+    //public bool IsBios => IsBiosString == "yes";
 
     [XmlAttribute(AttributeName = "isdevice")]
-    private string IsDeviceString { get; set; } = string.Empty;
+    private string IsDevice { get; set; } = string.Empty;
 
-    [XmlIgnore]
-    public bool IsDevice => IsDeviceString == "yes";
+    //[XmlIgnore]
+    //public bool IsDevice => IsDeviceString == "yes";
 
     [XmlAttribute(AttributeName = "runnable")]
     public string Runnable { get; set; } = string.Empty;
 
-    public bool IsRunnable => Runnable != "no";
+    //public bool IsRunnable => Runnable != "no";
 
     // ES
     [XmlElement(ElementName = "desc")]
@@ -103,7 +103,7 @@ public class Game
     public string SampleOf { get; set; } = string.Empty;
 
     [XmlIgnore]
-    public bool IsClone => !string.IsNullOrEmpty(CloneOf);
+    public string IsClone => string.IsNullOrEmpty(CloneOf) ? string.Empty : "yes";
 
     [XmlAttribute(AttributeName = "sourcefile")]
     public string SourceFile { get; set; } = string.Empty;
