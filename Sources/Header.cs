@@ -9,50 +9,50 @@ namespace RetroFilter.Sources
     [Serializable]
     public class Header : INotifyPropertyChanged
     {
-        private string _name = "No Name";
+        private string? _name;
 
         [XmlElement(ElementName = "name")]
-        public string Name
+        public string? Name
         {
             get => _name;
             set => SetField(ref _name, value);
         }
 
-        private string _description = "No Description";
+        private string? _description;
 
         [XmlElement(ElementName = "description")]
-        public string Description
+        public string? Description
         {
             get => _description;
             set => SetField(ref _description, value);
         }
 
         [XmlElement(ElementName = "category")]
-        public string Category { get; set; } = string.Empty;
+        public string? Category { get; set; }
 
         [XmlElement(ElementName = "version")]
-        public string Version { get; set; } = string.Empty;
+        public string? Version { get; set; }
 
         [XmlElement(ElementName = "date")]
-        public string Date { get; set; } = string.Empty;
+        public string? Date { get; set; }
 
         [XmlElement(ElementName = "author")]
-        public string Author { get; set; } = string.Empty;
+        public string? Author { get; set; }
 
         [XmlElement(ElementName = "email")]
-        public string Email { get; set; } = string.Empty;
+        public string? Email { get; set; }
 
         [XmlElement(ElementName = "homepage")]
-        public string Homepage { get; set; } = string.Empty;
+        public string? Homepage { get; set; }
 
         [XmlElement(ElementName = "url")]
-        public string Url { get; set; } = string.Empty;
+        public string? Url { get; set; }
 
         [XmlElement(ElementName = "comment")]
-        public string Comment { get; set; } = string.Empty;
+        public string? Comment { get; set; }
 
         [XmlElement(ElementName = "clrmamepro")]
-        public ClrMamePro ClrMamePro { get; set; } = new();
+        public ClrMamePro? ClrMamePro { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -74,6 +74,6 @@ namespace RetroFilter.Sources
     public class ClrMamePro
     {
         [XmlAttribute(AttributeName = "forcenodump")]
-        public string ForceNoDump { get; set; } = string.Empty;
+        public string? ForceNoDump { get; set; }
     }
 }

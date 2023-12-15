@@ -113,15 +113,9 @@ public partial class MainWindow : Window
 
         Database = db;
         GameGrid.ItemsSource = Database.FilteredGames;
+        ButtonSaveDataFile.IsEnabled = true;
         HeaderText.Text = Database.Header.Name + " | " + Database.Header.Description
                           + " (" + Database.Games.Count + " games)";
-    }
-
-    private void btnSaveDat_Click(object? sender, RoutedEventArgs e)
-    {
-        _ = sender;
-        _ = e;
-        throw new NotImplementedException();
     }
 
     private void btnProcessFolder_Click(object? sender, RoutedEventArgs e)
@@ -129,6 +123,14 @@ public partial class MainWindow : Window
         _ = sender;
         _ = e;
         throw new NotImplementedException();
+    }
+
+    private void OnSaveDataFile(object? sender, RoutedEventArgs e)
+    {
+        _ = sender;
+        _ = e;
+        //throw new NotImplementedException();
+        Database.Save("test.dat");
     }
 
     public async void SortDataGrid(object? headerName)

@@ -57,9 +57,9 @@
                 <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
                                      IconSource="{ic:FluentIconSource LockOpen24Regular}" Label="Unlock"
                                      ToolTip.Tip="Unlock all games" Click="btnUnlockAll_Click" />
-                <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
+                <ui:CommandBarButton x:Name="ButtonSaveDataFile" IsCompact="True" IsEnabled="False" Foreground="Orange"
                                      IconSource="{ic:FluentIconSource Save24Filled}" Label="Save"
-                                     ToolTip.Tip="Save database" Click="btnSaveDat_Click" />
+                                     ToolTip.Tip="Save database" Click="OnSaveDataFile" />
                 <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
                                      IconSource="{ic:FluentIconSource Folder24Filled}" Label="Process"
                                      ToolTip.Tip="Process a rom folder" Click="btnProcessFolder_Click" />

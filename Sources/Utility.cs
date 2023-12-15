@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using Avalonia.Controls;
 using Avalonia.Platform;
 
@@ -10,7 +11,7 @@ public abstract class Utility
     public static string ReadAsset(string path)
     {
         Uri textFileUri = new("avares://RetroFilter/Assets/" + path);
-        using StreamReader streamReader = new(AssetLoader.Open(textFileUri));
+        using StreamReader streamReader = new(AssetLoader.Open(textFileUri), Encoding.UTF8);
         return streamReader.ReadToEnd();
     }
 

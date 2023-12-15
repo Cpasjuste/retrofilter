@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace RetroFilter.Sources;
@@ -91,6 +92,16 @@ public class DataFile : INotifyPropertyChanged
         return filters;
     }
 
+    public void Save(string path)
+    {
+        var root = DataType == Type.EmulationStation ? "gameList" : "datafile";
+        if (DataType == Type.Mame2003) root = "mame";
+        var xmlRoot = new XmlRootAttribute(root);
+        var serializer = new XmlSerializer(typeof(DataFile), xmlRoot);
+        using var writer = new StreamWriter(path, false, Encoding.UTF8);
+        serializer.Serialize(writer, this);
+    }
+
     public static DataFile? Load(string path)
     {
         // mame.dat
@@ -143,45 +154,14 @@ public class DataFile : INotifyPropertyChanged
         foreach (var game in dataFile.Games)
         {
             var name = string.IsNullOrEmpty(game.Name) ? game.NameEs : game.Name;
-            if (!dic.TryGetValue(name, out var genre) && game.IsClone == "yes")
-                dic.TryGetValue(game.CloneOf, out genre);
+            if (!dic.TryGetValue(name!, out var genre) && game.IsClone == "yes")
+                dic.TryGetValue(game.CloneOf!, out genre);
             if (!string.IsNullOrEmpty(genre)) game.Genre = genre;
         }
 
         Console.WriteLine("database loaded: type is " + dataFile.DataType + ", games: " + dataFile.Games.Count);
         return dataFile;
     }
-
-    /*
-    public static bool Save(DataFile dataFile, ItemCollection collection, string path)
-    {
-        try
-        {
-            string root = dataFile.type == Type.EmulationStation ? "gameList" : "datafile";
-            if (dataFile.type == Type.Mame2003)
-            {
-                root = "mame";
-            }
-
-            XmlRootAttribute xmlRoot = new XmlRootAttribute(root);
-            XmlSerializer serializer = new XmlSerializer(typeof(DataFile), xmlRoot);
-            DataFile df = new DataFile();
-            df.Header = dataFile.type == Type.EmulationStation ? null : dataFile.Header;
-            // only save visible games
-            df.Games = new List<Game>(collection.OfType<Game>());
-            TextWriter writer = new StreamWriter(path);
-            serializer.Serialize(writer, df);
-            writer.Close();
-        }
-        catch
-        {
-            Console.WriteLine("Could not parse gamelist: " + path);
-            return false;
-        }
-
-        return true;
-    }
-    */
 
     private static DataFile? Load(string path, string root)
     {
