@@ -64,6 +64,12 @@ public partial class MainWindow : Window
         //CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
     }
 
+    private static FilePickerFileType GameDatabase { get; } = new("Mame / EmulationStation (*.dat/*.xml)")
+    {
+        Patterns = new[] { "*.dat", "*.xml" },
+        MimeTypes = new[] { "dat/*" }
+    };
+
     private async void btnLoadDat_Click(object? sender, RoutedEventArgs e)
     {
         _ = sender;
@@ -75,7 +81,8 @@ public partial class MainWindow : Window
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "Open Database File",
-            AllowMultiple = false
+            AllowMultiple = false,
+            FileTypeFilter = new[] { GameDatabase, FilePickerFileTypes.All }
         });
 
         if (files.Count < 1) return;

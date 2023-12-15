@@ -43,19 +43,11 @@ public class Game
     [XmlAttribute(AttributeName = "isbios")]
     public string IsBios { get; set; } = string.Empty;
 
-    //[XmlIgnore]
-    //public bool IsBios => IsBiosString == "yes";
-
     [XmlAttribute(AttributeName = "isdevice")]
     private string IsDevice { get; set; } = string.Empty;
 
-    //[XmlIgnore]
-    //public bool IsDevice => IsDeviceString == "yes";
-
     [XmlAttribute(AttributeName = "runnable")]
     public string Runnable { get; set; } = string.Empty;
-
-    //public bool IsRunnable => Runnable != "no";
 
     // ES
     [XmlElement(ElementName = "desc")]
