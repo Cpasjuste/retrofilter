@@ -33,7 +33,7 @@ public class DataFile : INotifyPropertyChanged
 
     [XmlElement("game", typeof(Game))]
     [XmlElement("machine", typeof(Machine))]
-    public List<Game> Games { get; set; } = new();
+    public ObservableCollection<Game> Games { get; set; } = new();
 
     private ObservableCollection<Game>? _filteredGames;
 
@@ -138,9 +138,6 @@ public class DataFile : INotifyPropertyChanged
             return null;
         }
 
-        // filtered game list
-        dataFile.FilteredGames = new ObservableCollection<Game>(dataFile.Games);
-
         // is datafile a mame "game" or "machine" nodes
         if (dataFile.Games[0] is Machine)
         {
@@ -158,6 +155,9 @@ public class DataFile : INotifyPropertyChanged
                 dic.TryGetValue(game.CloneOf!, out genre);
             if (!string.IsNullOrEmpty(genre)) game.Genre = genre;
         }
+
+        // filtered game list
+        dataFile.FilteredGames = new ObservableCollection<Game>(dataFile.Games);
 
         Console.WriteLine("database loaded: type is " + dataFile.DataType + ", games: " + dataFile.Games.Count);
         return dataFile;

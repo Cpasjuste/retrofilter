@@ -1,6 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -114,8 +116,7 @@ public partial class MainWindow : Window
         Database = db;
         GameGrid.ItemsSource = Database.FilteredGames;
         ButtonSaveDataFile.IsEnabled = true;
-        HeaderText.Text = Database.Header.Name + " | " + Database.Header.Description
-                          + " (" + Database.Games.Count + " games)";
+        UpdateHeader();
     }
 
     private void btnProcessFolder_Click(object? sender, RoutedEventArgs e)
@@ -131,6 +132,65 @@ public partial class MainWindow : Window
         _ = e;
         //throw new NotImplementedException();
         Database.Save("test.dat");
+    }
+
+    // TODO: async
+    private void OnDataGridKeyUp(object? sender, KeyEventArgs e)
+    {
+        if (e.Key != Key.Delete) return;
+        if (sender is not DataGrid grid) return;
+        if (grid.SelectedItems == null) return;
+
+        var games = grid.SelectedItems.Cast<Game>().ToList();
+        foreach (var game in games)
+        {
+            Database.Games.Remove(game);
+            Database.FilteredGames?.Remove(game);
+        }
+
+        UpdateHeader();
+    }
+
+    private void OnDataGridHeaderTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        _ = sender;
+
+        // get column header/field
+        if (e.Source is not TextBox textBox) return;
+        var header = Utility.FindParent<DataGridColumnHeader>(textBox);
+        var field = (string)header?.Content!;
+
+        // get filtering text
+        var text = textBox.Text?.ToLower();
+
+        // clear filtering if search text is null or empty
+        if (string.IsNullOrEmpty(text))
+        {
+            Database.FilteredGames = new ObservableCollection<Game>(Database.Games);
+            GameGrid.ItemsSource = Database.FilteredGames;
+            textBox.IsVisible = false;
+            UpdateHeader();
+            return;
+        }
+
+        // add games to filtered list
+        Database.FilteredGames?.Clear();
+        foreach (var game in Database.Games)
+        {
+            if (game.GetType().GetProperty(field) is not { } prop) continue;
+            if (prop.GetValue(game) is string value && value.ToLower().Contains(text))
+                Database.FilteredGames?.Add(game);
+        }
+
+        // update header text
+        UpdateHeader();
+    }
+
+    private void OnGameGridHeaderTextBoxLostFocus(object? sender, RoutedEventArgs e)
+    {
+        _ = e;
+        if (sender is not TextBox tb) return;
+        if (string.IsNullOrEmpty(tb.Text)) tb.IsVisible = false;
     }
 
     public async void SortDataGrid(object? headerName)
@@ -149,65 +209,11 @@ public partial class MainWindow : Window
         GameGrid.CanUserSortColumns = false;
     }
 
-    // TODO: async
-    private void OnDataGridKeyUp(object? sender, KeyEventArgs e)
+    private void UpdateHeader()
     {
-        if (e.Key != Key.Delete) return;
-        if (sender is not DataGrid grid) return;
-        if (grid.SelectedItems == null) return;
-
-        var games = grid.SelectedItems.Cast<Game>().ToList();
-        foreach (var game in games)
-        {
-            Database.Games.Remove(game);
-            Database.FilteredGames?.Remove(game);
-        }
-
-        HeaderText.Text = Database.Header.Name + " | " + Database.Header.Description
-                          + " (" + Database.FilteredGames?.Count + " games)";
-    }
-
-    private void OnDataGridHeaderTextChanged(object? sender, TextChangedEventArgs e)
-    {
-        _ = sender;
-        if (e.Source == null) return;
-
-        // get column header name
-        var textBox = (TextBox)e.Source;
-        var header = Utility.FindParent<DataGridColumnHeader>(textBox);
-        var field = (string)header?.Content!;
-
-        // get filtering text
-        var text = ((TextBox)e.Source).Text;
-
-        // filter games
-        var games = string.IsNullOrEmpty(text)
-            ? Database.Games
-            : Database.Games.Where(game =>
-            {
-                var prop = game.GetType().GetProperty(field);
-                if (prop == null) return false;
-                var value = (string)prop.GetValue(game)!;
-                return value.ToLower().Contains(text.ToLower());
-            });
-
-        // update games
-        Database.FilteredGames?.Clear();
-        foreach (var game in games) Database.FilteredGames?.Add(game);
-
-        if (string.IsNullOrEmpty(text)) textBox.IsVisible = false;
-
         // update header
         HeaderText.Text = Database.Header.Name + " | " + Database.Header.Description
                           + " (" + Database.FilteredGames?.Count + " games)";
-
-        Console.WriteLine("OnDataGridHeaderTextChanged: text = {0}, games: {1}", text, Database.FilteredGames?.Count);
-    }
-
-    private void OnGameGridHeaderTextBoxLostFocus(object? sender, RoutedEventArgs e)
-    {
-        if (sender is not TextBox tb) return;
-        if (string.IsNullOrEmpty(tb.Text)) tb.IsVisible = false;
     }
 
     private Task<object> ShowMessageBox(string title, string content, bool indeterminate = false)
