@@ -1,8 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -40,7 +38,16 @@ public partial class MainWindow : Window
         if (e == null) return;
 
         var headerName = e.Column.Header.ToString();
-        if (string.IsNullOrEmpty(headerName) || Database.GetFilteredColumns().Contains(headerName))
+        if (string.IsNullOrEmpty(headerName))
+        {
+            e.Column.IsVisible = false;
+            e.Cancel = true;
+            return;
+        }
+
+        // do not show columns with no content or not a string prop
+        var hasData = Database.Games.Any(game => game.GetType().GetProperty(headerName)?.GetValue(game) is string);
+        if (!hasData)
         {
             e.Column.IsVisible = false;
             e.Cancel = true;
@@ -49,7 +56,7 @@ public partial class MainWindow : Window
 
         switch (headerName)
         {
-            case "NameES":
+            case "NameEs":
                 e.Column.Header = "Name";
                 break;
             case "Desc" or "Description":
@@ -76,12 +83,6 @@ public partial class MainWindow : Window
         //CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
     }
 
-    private static FilePickerFileType GameDatabase { get; } = new("Mame / EmulationStation (*.dat/*.xml)")
-    {
-        Patterns = new[] { "*.dat", "*.xml" },
-        MimeTypes = new[] { "dat/*" }
-    };
-
     private async void OnLoadDatFile(object? sender, RoutedEventArgs e)
     {
         _ = sender;
@@ -94,7 +95,7 @@ public partial class MainWindow : Window
         {
             Title = "Open Database File",
             AllowMultiple = false,
-            FileTypeFilter = new[] { GameDatabase, FilePickerFileTypes.All }
+            FileTypeFilter = new[] { Utility.DatabaseFilter, FilePickerFileTypes.All }
         });
 
         if (files.Count < 1) return;
@@ -130,11 +131,10 @@ public partial class MainWindow : Window
     {
         _ = sender;
         _ = e;
-        //throw new NotImplementedException();
+        // TODO: file dialog
         Database.Save("test.dat");
     }
 
-    // TODO: async
     private void OnDataGridKeyUp(object? sender, KeyEventArgs e)
     {
         if (e.Key != Key.Delete) return;
@@ -173,13 +173,17 @@ public partial class MainWindow : Window
             return;
         }
 
-        // add games to filtered list
+        // clear filtered game list
         Database.FilteredGames?.Clear();
+
+        // add games to filtered list
         foreach (var game in Database.Games)
         {
             if (game.GetType().GetProperty(field) is not { } prop) continue;
             if (prop.GetValue(game) is string value && value.ToLower().Contains(text))
+            {
                 Database.FilteredGames?.Add(game);
+            }
         }
 
         // update header text

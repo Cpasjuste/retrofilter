@@ -3,11 +3,18 @@ using System.IO;
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Platform;
+using Avalonia.Platform.Storage;
 
 namespace RetroFilter.Sources;
 
 public abstract class Utility
 {
+    public static FilePickerFileType DatabaseFilter { get; } = new("Mame / EmulationStation (*.dat/*.xml)")
+    {
+        Patterns = new[] { "*.dat", "*.xml" },
+        MimeTypes = new[] { "dat/*" }
+    };
+
     public static string ReadAsset(string path)
     {
         Uri textFileUri = new("avares://RetroFilter/Assets/" + path);

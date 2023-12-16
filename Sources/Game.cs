@@ -97,7 +97,7 @@ public class Game
     public string? SampleOf { get; set; }
 
     [XmlIgnore]
-    public string IsClone => string.IsNullOrEmpty(CloneOf) ? string.Empty : "yes";
+    public string? IsClone => string.IsNullOrEmpty(CloneOf) ? null : "yes";
 
     [XmlAttribute(AttributeName = "sourcefile")]
     public string? SourceFile { get; set; }

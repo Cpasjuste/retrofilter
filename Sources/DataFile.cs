@@ -47,51 +47,6 @@ public class DataFile : INotifyPropertyChanged
     [XmlIgnore]
     public Type DataType = Type.MameGame;
 
-    public List<string> GetFilteredColumns()
-    {
-        var filters = new List<string>();
-
-        // hide non handled items
-        filters.AddRange(new List<string>
-        {
-            "Driver", "BiosSets",
-            "Roms", "DeviceRefs", "Samples", "Disks", "Chips", "Video",
-            "Sound", "Input", "DipSwitches"
-        });
-
-        if (DataType != Type.EmulationStation)
-        {
-            filters.AddRange(new List<string>
-            {
-                "NameEs", "Desc", "Source", "Image", "Thumbnail", "ReleaseDate",
-                "Path", "Developer", "Region", "RomType", "Id",
-                "Publisher", "Rating", "Players", "Hash"
-            });
-        }
-
-        if (DataType == Type.MameGame)
-        {
-            filters.AddRange(new List<string>
-                { "SourceFile", "IsDevice", "Runnable" });
-        }
-        else if (DataType == Type.Mame2003)
-        {
-            filters.AddRange(new List<string>
-                { "SourceFile" });
-        }
-        else if (DataType == Type.EmulationStation)
-        {
-            filters.AddRange(new List<string>
-            {
-                "Name", "SourceFile", "IsDevice", "Runnable",
-                "IsBios", "Year", "Description", "Manufacturer",
-                "RomOf", "CloneOf", "IsRom", "IsClone"
-            });
-        }
-
-        return filters;
-    }
-
     public void Save(string path)
     {
         var root = DataType == Type.EmulationStation ? "gameList" : "datafile";
