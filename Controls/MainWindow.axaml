@@ -76,7 +76,7 @@
             <!-- command bar -->
             <!-- Game List -->
             <DataGrid Grid.Row="1" x:Name="GameGrid" AutoGenerateColumns="True"
-                      IsReadOnly="False" SelectionMode="Extended" ColumnWidth="100"
+                      IsReadOnly="False" SelectionMode="Extended" ColumnWidth="100" RowHeight="22"
                       CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="False"
                       ItemsSource="{Binding  Database.FilteredGames}" KeyUp="OnDataGridKeyUp">
                 <DataGrid.Styles>
