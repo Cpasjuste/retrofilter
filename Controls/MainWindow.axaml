@@ -50,7 +50,16 @@
             <StackPanel Grid.Row="0" Orientation="Horizontal">
                 <ui:CommandBarButton IsCompact="True" IsEnabled="True" Foreground="Orange"
                                      IconSource="{ic:FluentIconSource ArrowUpload24Filled}" Label="Load"
-                                     ToolTip.Tip="Load a new database" Click="OnLoadDatFile" />
+                                     ToolTip.Tip="Load a new database">
+                    <ui:CommandBarButton.Flyout>
+                        <Flyout Placement="Bottom" PlacementAnchor="Bottom">
+                            <StackPanel Orientation="Vertical">
+                                <Button Click="OnLoadDatFile">New database</Button>
+                                <Button Click="OnLoadDatFileAdditive" Margin="0, 8, 0, 0">Additive</Button>
+                            </StackPanel>
+                        </Flyout>
+                    </ui:CommandBarButton.Flyout>
+                </ui:CommandBarButton>
                 <ui:CommandBarButton x:Name="ButtonSaveDataFile" IsCompact="True" IsEnabled="False" Foreground="Orange"
                                      IconSource="{ic:FluentIconSource Save24Filled}" Label="Save"
                                      ToolTip.Tip="Save database" Click="OnSaveDataFile" />

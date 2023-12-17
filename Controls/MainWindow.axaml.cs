@@ -13,6 +13,8 @@ namespace RetroFilter.Controls;
 
 public partial class MainWindow : Window
 {
+    public static DataFile.Type OutputType = DataFile.Type.EmulationStation;
+
     public DataFile Database { get; private set; } = new();
 
     public MainWindow()
@@ -56,9 +58,7 @@ public partial class MainWindow : Window
 
         switch (headerName)
         {
-            case "NameEs":
-                e.Column.Header = "Name";
-                break;
+            //case "NameEs": e.Column.Header = "Name"; break;
             case "Desc" or "Description":
                 e.Column.Width = new DataGridLength(300);
                 break;
@@ -118,6 +118,36 @@ public partial class MainWindow : Window
         GameGrid.ItemsSource = Database.FilteredGames;
         ButtonSaveDataFile.IsEnabled = true;
         UpdateHeader();
+    }
+
+    private async void OnLoadDatFileAdditive(object? sender, RoutedEventArgs e)
+    {
+        if (Database.Games.Count <= 0) return;
+
+        _ = sender;
+        _ = e;
+
+        var topLevel = GetTopLevel(this);
+        if (topLevel == null) return;
+
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Open Database File",
+            AllowMultiple = false,
+            FileTypeFilter = new[] { Utility.DatabaseFilter, FilePickerFileTypes.All }
+        });
+
+        if (files.Count < 1) return;
+
+        var path = files[0].TryGetLocalPath();
+        if (path == null)
+        {
+            await ShowMessageBox("Oops", "Could not open database from " + files[0].Path);
+            return;
+        }
+
+        Database.Append(path);
+        GameGrid.ItemsSource = Database.FilteredGames;
     }
 
     private void btnProcessFolder_Click(object? sender, RoutedEventArgs e)

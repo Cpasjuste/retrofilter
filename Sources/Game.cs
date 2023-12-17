@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using System.Xml.Serialization;
+using RetroFilter.Controls;
 
 namespace RetroFilter.Sources;
 
@@ -14,346 +14,312 @@ public class Machine : Game
 [System.Serializable]
 public class Game
 {
+    private bool IsEs => MainWindow.OutputType == DataFile.Type.EmulationStation;
+
     //[XmlIgnore]
     //public bool Locked { get; set; }
 
     // ES
-    [XmlAttribute(AttributeName = "id")]
-    public string? Id { get; set; }
+    [XmlAttribute("id")] public string? Id { get; set; }
+    public bool ShouldSerializeId() => Id != null && IsEs;
 
-    [XmlAttribute(AttributeName = "source")]
-    public string? Source { get; set; }
+    [XmlAttribute("source")] public string? Source { get; set; }
+    public bool ShouldSerializeSource() => Source != null && IsEs;
 
-    [XmlAttribute(AttributeName = "name")]
-    public string? Name { get; set; }
-
-    // ES
-    [XmlElement(ElementName = "name")]
-    public string? NameEs { get; set; }
-
-    [XmlElement(ElementName = "description")]
-    public string? Description { get; set; }
-
-    [DefaultValue("")]
-    [XmlElement(ElementName = "comment")]
-    public string? Comment { get; set; }
+    [XmlAttribute("name")] public string? Name { get; set; }
+    public bool ShouldSerializeName() => Name != null && !IsEs;
 
     // ES
-    [XmlElement(ElementName = "path")]
-    public string? Path { get; set; }
+    [XmlElement("name")] public string? NameEs { get; set; }
+    public bool ShouldSerializeNameEs() => NameEs != null && IsEs;
 
-    [XmlAttribute(AttributeName = "isbios")]
-    public string? IsBios { get; set; }
+    [XmlElement("description")] public string? Description { get; set; }
+    public bool ShouldSerializeDescription() => Description != null && !IsEs;
 
-    [XmlAttribute(AttributeName = "isdevice")]
-    private string? IsDevice { get; set; }
-
-    [XmlAttribute(AttributeName = "runnable")]
-    public string? Runnable { get; set; }
+    [XmlElement("comment")] public string? Comment { get; set; }
+    public bool ShouldSerializeComment() => Comment != null && !IsEs;
 
     // ES
-    [XmlElement(ElementName = "desc")]
-    public string? Desc { get; set; }
+    [XmlElement("path")] public string? Path { get; set; }
+    public bool ShouldSerializePath() => Path != null && IsEs;
+
+    [XmlAttribute("isbios")] public string? IsBios { get; set; }
+    public bool ShouldSerializeIsBios() => IsBios != null && !IsEs;
+
+    [XmlAttribute("isdevice")] private string? IsDevice { get; set; }
+    public bool ShouldSerializeIsDevice() => IsDevice != null && !IsEs;
+
+    [XmlAttribute("runnable")] public string? Runnable { get; set; }
+
+    public bool ShouldSerializeRunnable() => Runnable != null && !IsEs;
 
     // ES
-    [XmlElement(ElementName = "rating")]
-    public string? Rating { get; set; }
-
-    [XmlElement(ElementName = "year")]
-    public string? Year { get; set; }
+    [XmlElement("desc")] public string? Desc { get; set; }
+    public bool ShouldSerializeDesc() => Desc != null && IsEs;
 
     // ES
-    [XmlElement(ElementName = "releasedate")]
-    public string? ReleaseDate { get; set; }
+    [XmlElement("rating")] public string? Rating { get; set; }
+    public bool ShouldSerializeRating() => Rating != null && IsEs;
 
-    [XmlElement(ElementName = "manufacturer")]
-    public string? Manufacturer { get; set; }
-
-    // ES
-    [XmlElement(ElementName = "developer")]
-    public string? Developer { get; set; }
-
-    [XmlElement(ElementName = "publisher")]
-    public string? Publisher { get; set; }
-
-    [XmlElement(ElementName = "genre")]
-    public string? Genre { get; set; }
+    [XmlElement("year")] public string? Year { get; set; }
+    public bool ShouldSerializeYear() => Year != null && !IsEs;
 
     // ES
-    [XmlElement(ElementName = "players")]
-    public string? Players { get; set; }
+    [XmlElement("releasedate")] public string? ReleaseDate { get; set; }
+    public bool ShouldSerializeReleaseDate() => ReleaseDate != null && IsEs;
 
-    [XmlElement(ElementName = "region")]
-    public string? Region { get; set; }
+    [XmlElement("manufacturer")] public string? Manufacturer { get; set; }
+    public bool ShouldSerializeManufacturer() => Manufacturer != null && !IsEs;
 
-    [XmlAttribute(AttributeName = "romof")]
-    public string? RomOf { get; set; }
+    // ES
+    [XmlElement("developer")] public string? Developer { get; set; }
+    public bool ShouldSerializeDeveloper() => Developer != null && IsEs;
 
-    [XmlAttribute(AttributeName = "cloneof")]
-    public string? CloneOf { get; set; }
+    [XmlElement("publisher")] public string? Publisher { get; set; }
+    public bool ShouldSerializePublisher() => Publisher != null && IsEs;
+
+    // ES
+    [XmlElement("system")] public string? System { get; set; }
+    public bool ShouldSerializeSystem() => System != null && IsEs;
+
+    [XmlElement("genre")] public string? Genre { get; set; }
+    public bool ShouldSerializeGenre() => Genre != null && IsEs;
+
+    // ES
+    [XmlElement("genreid")] public string? GenreId { get; set; }
+    public bool ShouldSerializeGenreId() => GenreId != null && IsEs;
+
+    [XmlElement("resolution")] public string? Resolution { get; set; }
+    public bool ShouldSerializeResolution() => Resolution != null && IsEs;
+
+    [XmlElement("rotation")] public string? Rotation { get; set; }
+    public bool ShouldSerializeRotation() => Rotation != null && IsEs;
+
+    // ES
+    [XmlElement("players")] public string? Players { get; set; }
+    public bool ShouldSerializePlayers() => Players != null && IsEs;
+
+    [XmlElement("region")] public string? Region { get; set; }
+    public bool ShouldSerializeRegion() => Region != null && IsEs;
+
+    [XmlAttribute("romof")] public string? RomOf { get; set; }
+    public bool ShouldSerializeRomOf() => RomOf != null && !IsEs;
+
+    [XmlAttribute("cloneof")] public string? CloneOf { get; set; }
+    public bool ShouldSerializeCloneOf() => CloneOf != null && !IsEs;
 
     // mame2003
-    [XmlAttribute(AttributeName = "sampleof")]
-    public string? SampleOf { get; set; }
+    [XmlAttribute("sampleof")] public string? SampleOf { get; set; }
+    public bool ShouldSerializeSampleOf() => SampleOf != null && !IsEs;
 
-    [XmlIgnore]
-    public string? IsClone => string.IsNullOrEmpty(CloneOf) ? null : "yes";
+    [XmlIgnore] public string? IsClone => string.IsNullOrEmpty(CloneOf) ? null : "yes";
 
-    [XmlAttribute(AttributeName = "sourcefile")]
-    public string? SourceFile { get; set; }
+    [XmlAttribute("sourcefile")] public string? SourceFile { get; set; }
+    public bool ShouldSerializeSourceFile() => SourceFile != null && !IsEs;
 
     // ES
-    [XmlElement(ElementName = "romtype")]
-    public string? RomType { get; set; }
+    [XmlElement("romtype")] public string? RomType { get; set; }
+    public bool ShouldSerializeRomType() => RomType != null && IsEs;
 
-    [XmlElement(ElementName = "hash")]
-    public string? Hash { get; set; }
+    [XmlElement("hash")] public string? Hash { get; set; }
+    public bool ShouldSerializeHash() => Hash != null && IsEs;
 
-    [XmlElement(ElementName = "image")]
-    public string? Image { get; set; }
+    [XmlElement("image")] public string? Image { get; set; }
+    public bool ShouldSerializeImage() => Image != null && IsEs;
 
-    [XmlElement(ElementName = "video")]
-    public string? Video { get; set; }
+    [XmlElement("video")] public string? Video { get; set; }
+    public bool ShouldSerializeVideo() => Video != null && IsEs;
 
-    [XmlElement(ElementName = "thumbnail")]
-    public string? Thumbnail { get; set; }
+    [XmlElement("thumbnail")] public string? Thumbnail { get; set; }
+    public bool ShouldSerializeThumbnail() => Thumbnail != null && IsEs;
 
-    [XmlElement(ElementName = "biosset")]
-    public List<BiosSet>? BiosSets { get; set; }
+    [XmlElement("biosset")] public List<BiosSet>? BiosSets { get; set; }
+    public bool ShouldSerializeBiosSets() => BiosSets != null && !IsEs;
 
-    [XmlElement(ElementName = "rom")]
-    public List<Rom>? Roms { get; set; }
+    [XmlElement("rom")] public List<Rom>? Roms { get; set; }
+    public bool ShouldSerializeRoms() => Roms != null && !IsEs;
 
-    [XmlElement(ElementName = "device_ref")]
-    public List<DeviceRef>? DeviceRefs { get; set; }
+    [XmlElement("device_ref")] public List<DeviceRef>? DeviceRefs { get; set; }
+    public bool ShouldSerializeDeviceRefs() => DeviceRefs != null && !IsEs;
 
-    [XmlElement(ElementName = "sample")]
-    public List<Sample>? Samples { get; set; }
+    [XmlElement("sample")] public List<Sample>? Samples { get; set; }
+    public bool ShouldSerializeSamples() => Samples != null && !IsEs;
 
-    [XmlElement(ElementName = "driver")]
-    public Driver? Driver { get; set; }
+    [XmlElement("driver")] public Driver? Driver { get; set; }
+    public bool ShouldSerializeDriver() => Driver != null && !IsEs;
 
-    [XmlIgnore]
-    public string? Status => Driver?.Status;
+    [XmlIgnore] public string? Status => Driver?.Status;
 
     // mame2003
-    [XmlElement(ElementName = "disk")]
-    public List<Disk>? Disks { get; set; }
+    [XmlElement("disk")] public List<Disk>? Disks { get; set; }
+    public bool ShouldSerializeDisks() => Disks != null && !IsEs;
 
-    [XmlElement(ElementName = "chip")]
-    public List<Chip>? Chips { get; set; }
+    [XmlElement("chip")] public List<Chip>? Chips { get; set; }
+    public bool ShouldSerializeChips() => Chips != null && !IsEs;
 
     //[XmlElement]
     //public Video? Video { get; set; }
 
-    [XmlElement(ElementName = "sound")]
-    public Sound? Sound { get; set; }
+    [XmlElement("sound")] public Sound? Sound { get; set; }
+    public bool ShouldSerializeSound() => Sound != null && !IsEs;
 
-    [XmlElement(ElementName = "input")]
-    public Input? Input { get; set; }
+    [XmlElement("input")] public Input? Input { get; set; }
+    public bool ShouldSerializeInput() => Input != null && !IsEs;
 
-    [XmlElement(ElementName = "dipswitch")]
-    public List<DipSwitch>? DipSwitches { get; set; }
+    [XmlElement("dipswitch")] public List<DipSwitch>? DipSwitches { get; set; }
+    public bool ShouldSerializeDipSwitches() => DipSwitches != null && !IsEs;
 }
 
 [System.Serializable]
 public class Rom
 {
-    [XmlAttribute(AttributeName = "name")]
-    public string? Name { get; set; }
+    [XmlAttribute("name")] public string? Name { get; set; }
 
-    [XmlAttribute(AttributeName = "merge")]
-    public string? Merge { get; set; }
+    [XmlAttribute("merge")] public string? Merge { get; set; }
 
-    [XmlAttribute(AttributeName = "size")]
-    public string? Size { get; set; }
+    [XmlAttribute("size")] public string? Size { get; set; }
 
-    [XmlAttribute(AttributeName = "crc")]
-    public string? Crc { get; set; }
+    [XmlAttribute("crc")] public string? Crc { get; set; }
 
-    [XmlAttribute(AttributeName = "sha1")]
-    public string? Sha1 { get; set; }
+    [XmlAttribute("sha1")] public string? Sha1 { get; set; }
 
-    [XmlAttribute(AttributeName = "status")]
-    public string? Status { get; set; }
+    [XmlAttribute("status")] public string? Status { get; set; }
 
     // mame2003
-    [XmlAttribute(AttributeName = "bios")]
-    public string? Bios { get; set; }
+    [XmlAttribute("bios")] public string? Bios { get; set; }
 
-    [XmlAttribute(AttributeName = "md5")]
-    public string? Md5 { get; set; }
+    [XmlAttribute("md5")] public string? Md5 { get; set; }
 
-    [XmlAttribute(AttributeName = "region")]
-    public string? Region { get; set; }
+    [XmlAttribute("region")] public string? Region { get; set; }
 
-    [XmlAttribute(AttributeName = "offset")]
-    public string? Offset { get; set; }
+    [XmlAttribute("offset")] public string? Offset { get; set; }
 
-    [XmlAttribute(AttributeName = "dispose")]
-    public string? Dispose { get; set; }
+    [XmlAttribute("dispose")] public string? Dispose { get; set; }
 
-    [XmlAttribute(AttributeName = "soundonly")]
-    public string? SoundOnly { get; set; }
+    [XmlAttribute("soundonly")] public string? SoundOnly { get; set; }
 }
 
 [System.Serializable]
 public class BiosSet
 {
-    [XmlAttribute(AttributeName = "name")]
-    public string? Name { get; set; }
+    [XmlAttribute("name")] public string? Name { get; set; }
 
-    [XmlAttribute(AttributeName = "description")]
-    public string? Description { get; set; }
+    [XmlAttribute("description")] public string? Description { get; set; }
 
     // mame2003
-    [XmlAttribute(AttributeName = "default")]
-    public string? Default { get; set; }
+    [XmlAttribute("default")] public string? Default { get; set; }
 }
 
 [System.Serializable]
 public class DeviceRef
 {
-    [XmlAttribute(AttributeName = "name")]
-    public string? Name { get; set; }
+    [XmlAttribute("name")] public string? Name { get; set; }
 }
 
 [System.Serializable]
 public class Sample
 {
-    [XmlAttribute(AttributeName = "name")]
-    public string? Name { get; set; }
+    [XmlAttribute("name")] public string? Name { get; set; }
 }
 
 [System.Serializable]
 public class Driver
 {
-    [XmlAttribute(AttributeName = "status")]
-    public string? Status { get; set; }
+    [XmlAttribute("status")] public string? Status { get; set; }
 
     // mame2003
-    [XmlAttribute(AttributeName = "color")]
-    public string? Color { get; set; }
+    [XmlAttribute("color")] public string? Color { get; set; }
 
-    [XmlAttribute(AttributeName = "sound")]
-    public string? Sound { get; set; }
+    [XmlAttribute("sound")] public string? Sound { get; set; }
 
-    [XmlAttribute(AttributeName = "palettesize")]
-    public string? PaletteSize { get; set; }
+    [XmlAttribute("palettesize")] public string? PaletteSize { get; set; }
 }
 
 // mame2003
 [System.Serializable]
 public class Disk
 {
-    [XmlAttribute(AttributeName = "name")]
-    public string? Name { get; set; }
+    [XmlAttribute("name")] public string? Name { get; set; }
 
-    [XmlAttribute(AttributeName = "md5")]
-    public string? Md5 { get; set; }
+    [XmlAttribute("md5")] public string? Md5 { get; set; }
 
-    [XmlAttribute(AttributeName = "sha1")]
-    public string? Sha1 { get; set; }
+    [XmlAttribute("sha1")] public string? Sha1 { get; set; }
 
-    [XmlAttribute(AttributeName = "region")]
-    public string? Region { get; set; }
+    [XmlAttribute("region")] public string? Region { get; set; }
 
-    [XmlAttribute(AttributeName = "index")]
-    public string? Index { get; set; }
+    [XmlAttribute("index")] public string? Index { get; set; }
 }
 
 // mame2003
 [System.Serializable]
 public class Chip
 {
-    [XmlAttribute(AttributeName = "name")]
-    public string? Name { get; set; }
+    [XmlAttribute("name")] public string? Name { get; set; }
 
-    [XmlAttribute(AttributeName = "type")]
-    public string? Type { get; set; }
+    [XmlAttribute("type")] public string? Type { get; set; }
 
-    [XmlAttribute(AttributeName = "soundonly")]
-    public string? SoundOnly { get; set; }
+    [XmlAttribute("soundonly")] public string? SoundOnly { get; set; }
 
-    [XmlAttribute(AttributeName = "clock")]
-    public string? Clock { get; set; }
+    [XmlAttribute("clock")] public string? Clock { get; set; }
 }
 
 // mame2003
 [System.Serializable]
 public class Video
 {
-    [XmlAttribute(AttributeName = "screen")]
-    public string? Screen { get; set; }
+    [XmlAttribute("screen")] public string? Screen { get; set; }
 
-    [XmlAttribute(AttributeName = "orientation")]
-    public string? Orientation { get; set; }
+    [XmlAttribute("orientation")] public string? Orientation { get; set; }
 
-    [XmlAttribute(AttributeName = "width")]
-    public string? Width { get; set; }
+    [XmlAttribute("width")] public string? Width { get; set; }
 
-    [XmlAttribute(AttributeName = "height")]
-    public string? Height { get; set; }
+    [XmlAttribute("height")] public string? Height { get; set; }
 
-    [XmlAttribute(AttributeName = "aspectx")]
-    public string? AspectX { get; set; }
+    [XmlAttribute("aspectx")] public string? AspectX { get; set; }
 
-    [XmlAttribute(AttributeName = "aspecty")]
-    public string? AspectY { get; set; }
+    [XmlAttribute("aspecty")] public string? AspectY { get; set; }
 
-    [XmlAttribute(AttributeName = "refresh")]
-    public string? Refresh { get; set; }
+    [XmlAttribute("refresh")] public string? Refresh { get; set; }
 }
 
 // mame2003
 [System.Serializable]
 public class Sound
 {
-    [XmlAttribute(AttributeName = "channels")]
-    public string? Channels { get; set; }
+    [XmlAttribute("channels")] public string? Channels { get; set; }
 }
 
 // mame2003
 [System.Serializable]
 public class Input
 {
-    [XmlAttribute(AttributeName = "service")]
-    public string? Service { get; set; }
+    [XmlAttribute("service")] public string? Service { get; set; }
 
-    [XmlAttribute(AttributeName = "tilt")]
-    public string? Tilt { get; set; }
+    [XmlAttribute("tilt")] public string? Tilt { get; set; }
 
-    [XmlAttribute(AttributeName = "players")]
-    public string? Players { get; set; }
+    [XmlAttribute("players")] public string? Players { get; set; }
 
-    [XmlAttribute(AttributeName = "control")]
-    public string? Control { get; set; }
+    [XmlAttribute("control")] public string? Control { get; set; }
 
-    [XmlAttribute(AttributeName = "buttons")]
-    public string? Buttons { get; set; }
+    [XmlAttribute("buttons")] public string? Buttons { get; set; }
 
-    [XmlAttribute(AttributeName = "coins")]
-    public string? Coins { get; set; }
+    [XmlAttribute("coins")] public string? Coins { get; set; }
 }
 
 // mame2003
 [System.Serializable]
 public class DipValue
 {
-    [XmlAttribute(AttributeName = "Name")]
-    public string? Name { get; set; }
+    [XmlAttribute("Name")] public string? Name { get; set; }
 
-    [XmlAttribute(AttributeName = "default")]
-    public string? Default { get; set; }
+    [XmlAttribute("default")] public string? Default { get; set; }
 }
 
 // mame2003
 [System.Serializable]
 public class DipSwitch
 {
-    [XmlAttribute(AttributeName = "name")]
-    public string? Name { get; set; }
+    [XmlAttribute("name")] public string? Name { get; set; }
 
-    [XmlElement(ElementName = "dipvalue")]
-    public List<DipValue>? DipValues { get; set; }
+    [XmlElement("dipvalue")] public List<DipValue>? DipValues { get; set; }
 }

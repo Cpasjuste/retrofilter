@@ -44,17 +44,40 @@ public class DataFile : INotifyPropertyChanged
         set => SetField(ref _filteredGames, value);
     }
 
-    [XmlIgnore]
-    public Type DataType = Type.MameGame;
+    [XmlIgnore] public Type InputType = Type.MameGame;
 
     public void Save(string path)
     {
-        var root = DataType == Type.EmulationStation ? "gameList" : "datafile";
-        if (DataType == Type.Mame2003) root = "mame";
+        var root = InputType == Type.EmulationStation ? "gameList" : "datafile";
+        if (InputType == Type.Mame2003) root = "mame";
         var xmlRoot = new XmlRootAttribute(root);
         var serializer = new XmlSerializer(typeof(DataFile), xmlRoot);
         using var writer = new StreamWriter(path, false, Encoding.UTF8);
         serializer.Serialize(writer, this);
+    }
+
+    public void Append(string path)
+    {
+        var db = Load(path);
+        if (db == null) return;
+
+        foreach (var game in Games)
+        {
+            var name = InputType == Type.EmulationStation
+                ? Path.GetFileNameWithoutExtension(game.Path)
+                : game.Name;
+            var newGame = db.Games.FirstOrDefault(g => g.Name != null && g.Name.Equals(name));
+            if (newGame == null) continue; // game not found in newly loaded db
+            // parse each game properties to look for a new value
+            foreach (var prop in newGame.GetType().GetProperties())
+            {
+                var newPropValue = prop.GetValue(newGame);
+                var curPropValue = prop.GetValue(game);
+                if (newPropValue != null && curPropValue == null) prop.SetValue(game, newPropValue);
+            }
+        }
+
+        FilteredGames = new ObservableCollection<Game>(Games);
     }
 
     public static DataFile? Load(string path)
@@ -67,7 +90,7 @@ public class DataFile : INotifyPropertyChanged
             Console.WriteLine("trying mame2003 format...");
             if ((dataFile = Load(path, "mame")) != null)
             {
-                dataFile.DataType = Type.Mame2003;
+                dataFile.InputType = Type.Mame2003;
             }
         }
 
@@ -77,7 +100,7 @@ public class DataFile : INotifyPropertyChanged
             Console.WriteLine("trying gamelist.xml format...");
             if ((dataFile = Load(path, "gameList")) != null)
             {
-                dataFile.DataType = Type.EmulationStation;
+                dataFile.InputType = Type.EmulationStation;
             }
         }
 
@@ -96,7 +119,7 @@ public class DataFile : INotifyPropertyChanged
         // is datafile a mame "game" or "machine" nodes
         if (dataFile.Games[0] is Machine)
         {
-            dataFile.DataType = Type.MameMachine;
+            dataFile.InputType = Type.MameMachine;
         }
 
         // parse embedded catver, convert it to dictionary for faster search
@@ -114,7 +137,7 @@ public class DataFile : INotifyPropertyChanged
         // filtered game list
         dataFile.FilteredGames = new ObservableCollection<Game>(dataFile.Games);
 
-        Console.WriteLine("database loaded: type is " + dataFile.DataType + ", games: " + dataFile.Games.Count);
+        Console.WriteLine("database loaded: type is " + dataFile.InputType + ", games: " + dataFile.Games.Count);
         return dataFile;
     }
 
@@ -125,6 +148,10 @@ public class DataFile : INotifyPropertyChanged
         try
         {
             var serializer = new XmlSerializer(typeof(DataFile), new XmlRootAttribute { ElementName = root });
+            serializer.UnknownElement += (sender, args) =>
+                Console.WriteLine("XmlSerializer: UnknownElement => {0}", args.Element.Name);
+            serializer.UnknownAttribute += (sender, args) =>
+                Console.WriteLine("XmlSerializer: UnknownAttribute => {0}", args.Attr.Name);
             var reader = new StreamReader(path);
             dataFile = (DataFile)serializer.Deserialize(reader)!;
             reader.Close();
