@@ -10,11 +10,11 @@ public class Machine : Game
 {
 }
 
-// xml root: datafile, xml elements names: "game" (Mame)
+// xml root: datafile, xml elements names: "game" (Mame/Es)
 [System.Serializable]
 public class Game
 {
-    private bool IsEs => MainWindow.OutputType == DataFile.Type.EmulationStation;
+    private static bool IsEs => MainWindow.OutputType == DataFile.Type.EmulationStation;
 
     //[XmlIgnore]
     //public bool Locked { get; set; }
@@ -49,8 +49,10 @@ public class Game
     [XmlAttribute("isdevice")] private string? IsDevice { get; set; }
     public bool ShouldSerializeIsDevice() => IsDevice != null && !IsEs;
 
-    [XmlAttribute("runnable")] public string? Runnable { get; set; }
+    [XmlAttribute("ismechanical")] private string? IsMechanical { get; set; }
+    public bool ShouldSerializeIsMechanical() => IsMechanical != null && !IsEs;
 
+    [XmlAttribute("runnable")] public string? Runnable { get; set; }
     public bool ShouldSerializeRunnable() => Runnable != null && !IsEs;
 
     // ES
@@ -139,6 +141,9 @@ public class Game
     [XmlElement("rom")] public List<Rom>? Roms { get; set; }
     public bool ShouldSerializeRoms() => Roms != null && !IsEs;
 
+    [XmlElement("softwarelist")] public List<SoftwareList>? SoftwareLists { get; set; }
+    public bool ShouldSerializeSoftwareList() => SoftwareLists != null && !IsEs;
+
     [XmlElement("device_ref")] public List<DeviceRef>? DeviceRefs { get; set; }
     public bool ShouldSerializeDeviceRefs() => DeviceRefs != null && !IsEs;
 
@@ -212,6 +217,12 @@ public class BiosSet
 
 [System.Serializable]
 public class DeviceRef
+{
+    [XmlAttribute("name")] public string? Name { get; set; }
+}
+
+[System.Serializable]
+public class SoftwareList
 {
     [XmlAttribute("name")] public string? Name { get; set; }
 }

@@ -50,12 +50,13 @@
             <StackPanel Grid.Row="0" Orientation="Horizontal">
                 <ui:CommandBarButton IsCompact="True" IsEnabled="True" Foreground="Orange"
                                      IconSource="{ic:FluentIconSource ArrowUpload24Filled}" Label="Load"
-                                     ToolTip.Tip="Load a new database">
+                                     ToolTip.Tip="Load a database">
                     <ui:CommandBarButton.Flyout>
-                        <Flyout Placement="Bottom" PlacementAnchor="Bottom">
+                        <Flyout Placement="BottomEdgeAlignedLeft" PlacementGravity="Bottom" PlacementAnchor="Bottom">
                             <StackPanel Orientation="Vertical">
-                                <Button Click="OnLoadDatFile">New database</Button>
-                                <Button Click="OnLoadDatFileAdditive" Margin="0, 8, 0, 0">Additive</Button>
+                                <Button Click="OnLoadDatFile">Load a new database</Button>
+                                <Button Click="OnLoadDatFileAdditive" Margin="0, 8, 0, 0">Load and merge a database</Button>
+                                <Button Click="OnLoadRomFolder" Margin="0, 8, 0, 0">Load roms from a folder</Button>
                             </StackPanel>
                         </Flyout>
                     </ui:CommandBarButton.Flyout>
@@ -63,12 +64,14 @@
                 <ui:CommandBarButton x:Name="ButtonSaveDataFile" IsCompact="True" IsEnabled="False" Foreground="Orange"
                                      IconSource="{ic:FluentIconSource Save24Filled}" Label="Save"
                                      ToolTip.Tip="Save database" Click="OnSaveDataFile" />
+                <!--
                 <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
                                      IconSource="{ic:FluentIconSource LockClosed24Regular}" Label="Lock"
                                      ToolTip.Tip="Lock all games" Click="btnLockAll_Click" />
                 <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
                                      IconSource="{ic:FluentIconSource LockOpen24Regular}" Label="Unlock"
                                      ToolTip.Tip="Unlock all games" Click="btnUnlockAll_Click" />
+                -->
                 <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
                                      IconSource="{ic:FluentIconSource Folder24Filled}" Label="Process"
                                      ToolTip.Tip="Process a rom folder" Click="btnProcessFolder_Click" />

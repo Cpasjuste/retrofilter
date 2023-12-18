@@ -75,6 +75,8 @@ public class DataFile : INotifyPropertyChanged
                 var curPropValue = prop.GetValue(game);
                 if (newPropValue != null && curPropValue == null) prop.SetValue(game, newPropValue);
             }
+
+            // TODO: catver association
         }
 
         FilteredGames = new ObservableCollection<Game>(Games);
@@ -148,10 +150,15 @@ public class DataFile : INotifyPropertyChanged
         try
         {
             var serializer = new XmlSerializer(typeof(DataFile), new XmlRootAttribute { ElementName = root });
+            // TODO: fix a few elements/attributes reported as "unknown" while they seems fine in game class...
+            /*
             serializer.UnknownElement += (sender, args) =>
-                Console.WriteLine("XmlSerializer: UnknownElement => {0}", args.Element.Name);
+                Console.WriteLine("XmlSerializer: UnknownElement => {0} (line {1})",
+                    args.Element.Name, args.LineNumber);
             serializer.UnknownAttribute += (sender, args) =>
-                Console.WriteLine("XmlSerializer: UnknownAttribute => {0}", args.Attr.Name);
+                Console.WriteLine("XmlSerializer: UnknownAttribute => {0} (line {1})",
+                    args.Attr.Name, args.LineNumber);
+            */
             var reader = new StreamReader(path);
             dataFile = (DataFile)serializer.Deserialize(reader)!;
             reader.Close();

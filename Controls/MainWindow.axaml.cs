@@ -67,22 +67,6 @@ public partial class MainWindow : Window
         e.Column.IsReadOnly = false;
     }
 
-    private void btnLockAll_Click(object? sender, RoutedEventArgs? e)
-    {
-        _ = sender;
-        _ = e;
-        //foreach (Game game in GameGrid.ItemsSource) game.Locked = true;
-        //CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
-    }
-
-    private void btnUnlockAll_Click(object? sender, RoutedEventArgs e)
-    {
-        _ = sender;
-        _ = e;
-        //foreach (Game game in GameGrid.ItemsSource) game.Locked = false;
-        //CollectionViewSource.GetDefaultView(gamesGrid.ItemsSource).Refresh();
-    }
-
     private async void OnLoadDatFile(object? sender, RoutedEventArgs e)
     {
         _ = sender;
@@ -181,7 +165,7 @@ public partial class MainWindow : Window
         UpdateHeader();
     }
 
-    private void OnDataGridHeaderTextChanged(object? sender, TextChangedEventArgs e)
+    private async void OnDataGridHeaderTextChanged(object? sender, TextChangedEventArgs e)
     {
         _ = sender;
 
@@ -190,31 +174,41 @@ public partial class MainWindow : Window
         var header = Utility.FindParent<DataGridColumnHeader>(textBox);
         var field = (string)header?.Content!;
 
+        // set ui waiting state
+        GameGrid.Opacity = 0.5f;
+        textBox.IsEnabled = false;
+        await Task.Delay(1);
+
         // get filtering text
         var text = textBox.Text?.ToLower();
-
-        // clear filtering if search text is null or empty
-        if (string.IsNullOrEmpty(text))
-        {
-            Database.FilteredGames = new ObservableCollection<Game>(Database.Games);
-            GameGrid.ItemsSource = Database.FilteredGames;
-            textBox.IsVisible = false;
-            UpdateHeader();
-            return;
-        }
 
         // clear filtered game list
         Database.FilteredGames?.Clear();
 
-        // add games to filtered list
-        foreach (var game in Database.Games)
+        if (string.IsNullOrEmpty(text))
         {
-            if (game.GetType().GetProperty(field) is not { } prop) continue;
-            if (prop.GetValue(game) is string value && value.ToLower().Contains(text))
-            {
-                Database.FilteredGames?.Add(game);
-            }
+            // very slow but prevent DataGrid sorting to be cleared
+            foreach (var game in Database.Games) Database.FilteredGames?.Add(game);
+            textBox.IsEnabled = true;
+            textBox.IsVisible = false;
         }
+        else
+        {
+            // add games to filtered list
+            foreach (var game in Database.Games)
+            {
+                if (game.GetType().GetProperty(field) is not { } prop) continue;
+                if (prop.GetValue(game) is string value && value.ToLower().Contains(text))
+                {
+                    Database.FilteredGames?.Add(game);
+                }
+            }
+
+            textBox.IsEnabled = true;
+            textBox.Focus();
+        }
+
+        GameGrid.Opacity = 1f;
 
         // update header text
         UpdateHeader();
@@ -262,5 +256,10 @@ public partial class MainWindow : Window
         }
 
         return MainTaskDialog.ShowAsync(true);
+    }
+
+    private void OnLoadRomFolder(object? sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
     }
 }
