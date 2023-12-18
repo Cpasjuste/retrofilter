@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using FluentAvalonia.UI.Controls;
 using RetroFilter.Sources;
 
@@ -13,9 +17,9 @@ namespace RetroFilter.Controls;
 
 public partial class MainWindow : Window
 {
-    public static DataFile.Type OutputType = DataFile.Type.EmulationStation;
-
     public DataFile Database { get; private set; } = new();
+    public const DataFile.Type OutputType = DataFile.Type.EmulationStation;
+    private CatVer? _catVer;
 
     public MainWindow()
     {
@@ -23,6 +27,12 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         GameGrid.AutoGeneratingColumn += OnAutoGeneratingColumn;
+        GameGrid.LoadingRow += (sender, e) =>
+        {
+            _ = sender;
+            if (e.Row.DataContext is not Game game) return;
+            e.Row.Foreground = game.Missing == "yes" ? Brushes.Coral : Brushes.White;
+        };
 
         if (Design.IsDesignMode)
         {
@@ -33,6 +43,79 @@ public partial class MainWindow : Window
             };
             GameGrid.ItemsSource = Database.FilteredGames;
         }
+        else
+        {
+            Task.Run(Load);
+        }
+    }
+
+    private async void Load()
+    {
+        // load cat/ver
+        _catVer = new CatVer();
+
+        // extract fbneo db if needed
+        if (!File.Exists("fbneo.dat")) Utility.UnzipFromAsset("fbneo.zip", "fbneo.dat");
+
+        // load fbneo db
+        Database = DataFile.Load("fbneo.dat", _catVer);
+
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            GameGrid.ItemsSource = Database.FilteredGames;
+            UpdateHeader();
+        });
+    }
+
+    private async void OnChooseDirectory(object? sender, RoutedEventArgs e)
+    {
+        _ = sender;
+        _ = e;
+        var topLevel = GetTopLevel(this);
+        if (topLevel == null) return;
+        var paths = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = "Open a rom folder",
+            AllowMultiple = false
+        });
+
+        if (paths.Count < 1) return;
+        var path = paths[0].TryGetLocalPath();
+        if (path == null || !Directory.Exists(path))
+        {
+            await ShowMessageBox("Oops", "could not open rom folder (" + path + ")");
+            return;
+        }
+
+        // load gamelist.xml if exists
+        if (File.Exists(path + "/gamelist.xml"))
+        {
+            // ask for props to override
+            await LoadGameListDialog.ShowAsync(true);
+
+            // parse props to override
+            List<string> props = new();
+            foreach (var item in LoadGameListDialogListBox.Items)
+            {
+                if (item is not CheckBox cb) continue;
+                if (cb.IsChecked != null && cb.IsChecked.Value && cb.Content is string str)
+                    props.Add(str);
+            }
+
+            Database.Append(path + "/gamelist.xml", _catVer!, props.ToArray());
+        }
+
+        // load roms from selected directory
+        foreach (var file in Directory.GetFiles(path))
+        {
+            var romPath = Path.GetFileName(file);
+            var game = Database.Games.FirstOrDefault(g => g.Path == romPath);
+            if (game != null) game.Missing = "no";
+        }
+
+        GameGrid.ItemsSource = Database.FilteredGames;
+        ButtonSaveDataFile.IsEnabled = true;
+        UpdateHeader();
     }
 
     private void OnAutoGeneratingColumn(object? sender, DataGridAutoGeneratingColumnEventArgs? e)
@@ -40,7 +123,12 @@ public partial class MainWindow : Window
         if (e == null) return;
 
         var headerName = e.Column.Header.ToString();
-        if (string.IsNullOrEmpty(headerName))
+        if (string.IsNullOrEmpty(headerName)
+            || headerName == "MameName"
+            || headerName == "Description"
+            || headerName == "Manufacturer"
+            || headerName == "Year"
+            || headerName == "VideoElement")
         {
             e.Column.IsVisible = false;
             e.Cancel = true;
@@ -65,80 +153,6 @@ public partial class MainWindow : Window
         }
 
         e.Column.IsReadOnly = false;
-    }
-
-    private async void OnLoadDatFile(object? sender, RoutedEventArgs e)
-    {
-        _ = sender;
-        _ = e;
-
-        var topLevel = GetTopLevel(this);
-        if (topLevel == null) return;
-
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = "Open Database File",
-            AllowMultiple = false,
-            FileTypeFilter = new[] { Utility.DatabaseFilter, FilePickerFileTypes.All }
-        });
-
-        if (files.Count < 1) return;
-
-        var path = files[0].TryGetLocalPath();
-        if (path == null)
-        {
-            await ShowMessageBox("Oops", "Could not open database from " + files[0].Path);
-            return;
-        }
-
-        var db = DataFile.Load(path);
-        if (db == null)
-        {
-            await ShowMessageBox("Oops", "Could not load database from " + files[0].Path);
-            return;
-        }
-
-        Database = db;
-        GameGrid.ItemsSource = Database.FilteredGames;
-        ButtonSaveDataFile.IsEnabled = true;
-        UpdateHeader();
-    }
-
-    private async void OnLoadDatFileAdditive(object? sender, RoutedEventArgs e)
-    {
-        if (Database.Games.Count <= 0) return;
-
-        _ = sender;
-        _ = e;
-
-        var topLevel = GetTopLevel(this);
-        if (topLevel == null) return;
-
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
-        {
-            Title = "Open Database File",
-            AllowMultiple = false,
-            FileTypeFilter = new[] { Utility.DatabaseFilter, FilePickerFileTypes.All }
-        });
-
-        if (files.Count < 1) return;
-
-        var path = files[0].TryGetLocalPath();
-        if (path == null)
-        {
-            await ShowMessageBox("Oops", "Could not open database from " + files[0].Path);
-            return;
-        }
-
-        Database.Append(path);
-        GameGrid.ItemsSource = Database.FilteredGames;
-    }
-
-    private void btnProcessFolder_Click(object? sender, RoutedEventArgs e)
-    {
-        _ = sender;
-        _ = e;
-        throw new NotImplementedException();
     }
 
     private void OnSaveDataFile(object? sender, RoutedEventArgs e)
@@ -240,8 +254,9 @@ public partial class MainWindow : Window
     private void UpdateHeader()
     {
         // update header
+        var missing = Database.FilteredGames?.Count(g => g.Missing == "yes");
         HeaderText.Text = Database.Header.Name + " | " + Database.Header.Description
-                          + " (" + Database.FilteredGames?.Count + " games)";
+                          + " (" + Database.FilteredGames?.Count + " games, missing: " + missing + ")";
     }
 
     private Task<object> ShowMessageBox(string title, string content, bool indeterminate = false)
@@ -256,10 +271,5 @@ public partial class MainWindow : Window
         }
 
         return MainTaskDialog.ShowAsync(true);
-    }
-
-    private void OnLoadRomFolder(object? sender, RoutedEventArgs e)
-    {
-        throw new NotImplementedException();
     }
 }

@@ -48,40 +48,20 @@
         <Grid RowDefinitions="Auto,*,Auto" x:Name="MainGrid">
             <!-- command bar -->
             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <ui:CommandBarButton IsCompact="True" IsEnabled="True" Foreground="Orange"
-                                     IconSource="{ic:FluentIconSource ArrowUpload24Filled}" Label="Load"
-                                     ToolTip.Tip="Load a database">
-                    <ui:CommandBarButton.Flyout>
-                        <Flyout Placement="BottomEdgeAlignedLeft" PlacementGravity="Bottom" PlacementAnchor="Bottom">
-                            <StackPanel Orientation="Vertical">
-                                <Button Click="OnLoadDatFile">Load a new database</Button>
-                                <Button Click="OnLoadDatFileAdditive" Margin="0, 8, 0, 0">Load and merge a database</Button>
-                                <Button Click="OnLoadRomFolder" Margin="0, 8, 0, 0">Load roms from a folder</Button>
-                            </StackPanel>
-                        </Flyout>
-                    </ui:CommandBarButton.Flyout>
+                <ui:CommandBarButton IsCompact="True" IsEnabled="True" Foreground="Orange" Click="OnChooseDirectory"
+                                     IconSource="{ic:FluentIconSource Folder24Regular}" Label="Open"
+                                     ToolTip.Tip="Select your fbneo roms folder">
                 </ui:CommandBarButton>
                 <ui:CommandBarButton x:Name="ButtonSaveDataFile" IsCompact="True" IsEnabled="False" Foreground="Orange"
-                                     IconSource="{ic:FluentIconSource Save24Filled}" Label="Save"
-                                     ToolTip.Tip="Save database" Click="OnSaveDataFile" />
-                <!--
-                <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
-                                     IconSource="{ic:FluentIconSource LockClosed24Regular}" Label="Lock"
-                                     ToolTip.Tip="Lock all games" Click="btnLockAll_Click" />
-                <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
-                                     IconSource="{ic:FluentIconSource LockOpen24Regular}" Label="Unlock"
-                                     ToolTip.Tip="Unlock all games" Click="btnUnlockAll_Click" />
-                -->
-                <ui:CommandBarButton IsCompact="True" IsEnabled="False" Foreground="Orange"
-                                     IconSource="{ic:FluentIconSource Folder24Filled}" Label="Process"
-                                     ToolTip.Tip="Process a rom folder" Click="btnProcessFolder_Click" />
+                                     IconSource="{ic:FluentIconSource SaveSync20Regular}" Label="Export"
+                                     ToolTip.Tip="Export" Click="OnSaveDataFile" />
             </StackPanel>
             <!-- command bar -->
             <!-- Game List -->
             <DataGrid Grid.Row="1" x:Name="GameGrid" AutoGenerateColumns="True"
                       IsReadOnly="False" SelectionMode="Extended" ColumnWidth="100" RowHeight="22"
                       CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="False"
-                      ItemsSource="{Binding  Database.FilteredGames}" KeyUp="OnDataGridKeyUp">
+                      ItemsSource="{Binding  Database.FilteredGames, Mode=TwoWay}" KeyUp="OnDataGridKeyUp">
                 <DataGrid.Styles>
                     <Style Selector="DataGridColumnHeader">
                         <Setter Property="Template">
@@ -122,6 +102,25 @@
                 <ui:TaskDialogButton Text="Cancel" DialogResult="Cancel" IsEnabled="False" />
                 -->
             </ui:TaskDialog.Buttons>
+        </ui:TaskDialog>
+        <ui:TaskDialog x:Name="LoadGameListDialog"
+                       FooterVisibility="Always" IsFooterExpanded="True" ShowProgressBar="False"
+                       Header="GameList Loader"
+                       Content='A "gamelist.xml" file was detected in your roms folder. You can select which fields from this file will overwrite the default (fbneo) ones.'>
+            <ui:TaskDialog.Buttons>
+                <ui:TaskDialogButton Text="Ok" DialogResult="OK" />
+            </ui:TaskDialog.Buttons>
+            <ui:TaskDialog.Footer>
+                <ListBox x:Name="LoadGameListDialogListBox">
+                    <CheckBox IsChecked="True">Path</CheckBox>
+                    <CheckBox IsChecked="True">Desc</CheckBox>
+                    <CheckBox>Name</CheckBox>
+                    <CheckBox>ReleaseDate</CheckBox>
+                    <CheckBox>Developer</CheckBox>
+                    <CheckBox>Publisher</CheckBox>
+                    <CheckBox>Genre</CheckBox>
+                </ListBox>
+            </ui:TaskDialog.Footer>
         </ui:TaskDialog>
     </Panel>
 </Window>

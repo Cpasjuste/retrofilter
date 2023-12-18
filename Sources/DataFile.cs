@@ -22,6 +22,8 @@ public class DataFile : INotifyPropertyChanged
         EmulationStation
     }
 
+    [XmlIgnore] public Type InputType = Type.MameGame;
+
     private Header _header = new();
 
     [XmlElement(ElementName = "header")]
@@ -44,8 +46,6 @@ public class DataFile : INotifyPropertyChanged
         set => SetField(ref _filteredGames, value);
     }
 
-    [XmlIgnore] public Type InputType = Type.MameGame;
-
     public void Save(string path)
     {
         var root = InputType == Type.EmulationStation ? "gameList" : "datafile";
@@ -56,33 +56,29 @@ public class DataFile : INotifyPropertyChanged
         serializer.Serialize(writer, this);
     }
 
-    public void Append(string path)
+    public void Append(string path, CatVer catVer, string[] propsToOverride)
     {
-        var db = Load(path);
-        if (db == null) return;
-
-        foreach (var game in Games)
+        var db = Load(path, catVer);
+        foreach (var game in db.Games)
         {
-            var name = InputType == Type.EmulationStation
-                ? Path.GetFileNameWithoutExtension(game.Path)
-                : game.Name;
-            var newGame = db.Games.FirstOrDefault(g => g.Name != null && g.Name.Equals(name));
-            if (newGame == null) continue; // game not found in newly loaded db
-            // parse each game properties to look for a new value
-            foreach (var prop in newGame.GetType().GetProperties())
-            {
-                var newPropValue = prop.GetValue(newGame);
-                var curPropValue = prop.GetValue(game);
-                if (newPropValue != null && curPropValue == null) prop.SetValue(game, newPropValue);
-            }
+            var curGame = Games.FirstOrDefault(g => g.Path == game.Path);
+            if (curGame == null) continue;
 
-            // TODO: catver association
+            // parse each game properties to look for a new value
+            foreach (var prop in game.GetType().GetProperties())
+            {
+                var newPropValue = prop.GetValue(game);
+                if (newPropValue == null) continue;
+                var curPropValue = prop.GetValue(curGame);
+                if (curPropValue == null || propsToOverride.Contains(prop.Name))
+                    prop.SetValue(curGame, newPropValue);
+            }
         }
 
         FilteredGames = new ObservableCollection<Game>(Games);
     }
 
-    public static DataFile? Load(string path)
+    public static DataFile Load(string path, CatVer catVer)
     {
         // mame.dat
         var dataFile = Load(path, "datafile");
@@ -109,13 +105,13 @@ public class DataFile : INotifyPropertyChanged
         if (dataFile == null)
         {
             Console.WriteLine("Could not parse database file from " + path);
-            return null;
+            return new DataFile();
         }
 
         if (dataFile.Games is not { Count: > 0 })
         {
             Console.WriteLine("Could not parse gamelist: no games found");
-            return null;
+            return new DataFile();
         }
 
         // is datafile a mame "game" or "machine" nodes
@@ -124,15 +120,12 @@ public class DataFile : INotifyPropertyChanged
             dataFile.InputType = Type.MameMachine;
         }
 
-        // parse embedded catver, convert it to dictionary for faster search
-        var cat = Utility.ReadAsset("catver_0.261.ini");
-        var lines = cat.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-        var dic = lines.Select(item => item.Split('=')).ToDictionary(s => s[0], s => s[1]);
+        // map cat/ver
         foreach (var game in dataFile.Games)
         {
-            var name = string.IsNullOrEmpty(game.Name) ? game.NameEs : game.Name;
-            if (!dic.TryGetValue(name!, out var genre) && game.IsClone == "yes")
-                dic.TryGetValue(game.CloneOf!, out genre);
+            var name = game.MameName ?? Path.GetFileNameWithoutExtension(game.Path);
+            if (!catVer.Mapping.TryGetValue(name!, out var genre) && game.IsClone == "yes")
+                catVer.Mapping.TryGetValue(game.CloneOf!, out genre);
             if (!string.IsNullOrEmpty(genre)) game.Genre = genre;
         }
 
