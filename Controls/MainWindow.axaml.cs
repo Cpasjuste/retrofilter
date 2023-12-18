@@ -31,22 +31,10 @@ public partial class MainWindow : Window
         {
             _ = sender;
             if (e.Row.DataContext is not Game game) return;
-            e.Row.Foreground = game.Missing == "yes" ? Brushes.Coral : Brushes.White;
+            e.Row.Foreground = game.Missing == "yes" ? Brushes.Orange : Brushes.WhiteSmoke;
         };
 
-        if (Design.IsDesignMode)
-        {
-            Database.FilteredGames = new ObservableCollection<Game>
-            {
-                new() { Name = "Super Game" },
-                new() { Name = "Super Game 2" }
-            };
-            GameGrid.ItemsSource = Database.FilteredGames;
-        }
-        else
-        {
-            Task.Run(Load);
-        }
+        if (!Design.IsDesignMode) Task.Run(Load);
     }
 
     private async void Load()
@@ -60,6 +48,7 @@ public partial class MainWindow : Window
         // load fbneo db
         Database = DataFile.Load("fbneo.dat", _catVer);
 
+        // refresh games grid
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             GameGrid.ItemsSource = Database.FilteredGames;

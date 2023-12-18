@@ -36,7 +36,7 @@ public class Game
     [XmlElement("path")]
     public string? Path
     {
-        get => _path ?? MameName + ".zip";
+        get => _path ?? MameName;
         set => _path = value;
     }
 
@@ -54,7 +54,15 @@ public class Game
 
     public bool ShouldSerializeName() => Name != null && IsEs;
 
-    [XmlAttribute("name")] public string? MameName { get; set; }
+    private string? _mameName;
+
+    [XmlAttribute("name")]
+    public string? MameName
+    {
+        get => _mameName;
+        set => _mameName = value + ".zip";
+    }
+
     public bool ShouldSerializeMameName() => MameName != null && !IsEs;
 
     // ES
