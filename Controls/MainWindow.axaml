@@ -99,9 +99,9 @@
                                             <Flyout Placement="Pointer"
                                                     ShowMode="TransientWithDismissOnPointerMoveAway">
                                                 <StackPanel Orientation="Vertical">
-                                                    <TextBlock
-                                                        Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=OwningColumn.Header}"
-                                                        Margin="0, 0, 0, 10" FontWeight="Bold" />
+                                                    <TextBlock Foreground="Orange"
+                                                               Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=OwningColumn.Header}"
+                                                               Margin="0, 0, 0, 10" FontWeight="Bold" />
                                                     <TextBox Name="CellTextBox" Padding="10"
                                                              MaxWidth="400" TextWrapping="Wrap"
                                                              Text="{Binding ElementName=CellTextBlock, Path=Text, Mode=TwoWay}" />

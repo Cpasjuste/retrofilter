@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Serialization;
+using RetroFilter.Controls;
 
 namespace RetroFilter.Sources;
 
@@ -22,7 +23,8 @@ public class DataFile : INotifyPropertyChanged
         EmulationStation
     }
 
-    [XmlIgnore] public Type InputType = Type.MameGame;
+    [XmlIgnore]
+    public Type InputType = Type.MameGame;
 
     private Header _header = new();
 
@@ -48,8 +50,8 @@ public class DataFile : INotifyPropertyChanged
 
     public void Save(string path)
     {
-        var root = InputType == Type.EmulationStation ? "gameList" : "datafile";
-        if (InputType == Type.Mame2003) root = "mame";
+        var root = MainWindow.OutputType == Type.EmulationStation ? "gameList" : "datafile";
+        if (MainWindow.OutputType == Type.Mame2003) root = "mame";
         var xmlRoot = new XmlRootAttribute(root);
         var serializer = new XmlSerializer(typeof(DataFile), xmlRoot);
         using var writer = new StreamWriter(path, false, Encoding.UTF8);
@@ -70,7 +72,9 @@ public class DataFile : INotifyPropertyChanged
                 var newPropValue = prop.GetValue(game);
                 if (newPropValue == null) continue;
                 var curPropValue = prop.GetValue(curGame);
-                if (curPropValue == null || propsToOverride.Contains(prop.Name))
+                if (curPropValue == null
+                    || prop.Name == nameof(Game.VideoElement)
+                    || propsToOverride.Contains(prop.Name))
                     prop.SetValue(curGame, newPropValue);
             }
         }
