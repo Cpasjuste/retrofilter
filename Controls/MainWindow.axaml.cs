@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -35,6 +36,18 @@ public partial class MainWindow : Window
         };
 
         if (!Design.IsDesignMode) Task.Run(Load);
+        else
+        {
+            Database.Games = new ObservableCollection<Game>
+            {
+                new() { Name = "Game 1" },
+                new() { Name = "Game 2" },
+            };
+
+            Database.FilteredGames = Database.Games;
+            GameGrid.ItemsSource = Database.FilteredGames;
+            UpdateHeader();
+        }
     }
 
     private async void Load()
@@ -141,7 +154,7 @@ public partial class MainWindow : Window
                 break;
         }
 
-        e.Column.IsReadOnly = false;
+        //e.Column.IsReadOnly = false;
     }
 
     private void OnSaveDataFile(object? sender, RoutedEventArgs e)
@@ -150,6 +163,12 @@ public partial class MainWindow : Window
         _ = e;
         // TODO: file dialog
         Database.Save("test.dat");
+    }
+
+    private void OnDataCellDoubleTapped(object? sender, TappedEventArgs e)
+    {
+        if (e.Source is not TextBlock tb) return;
+        FlyoutBase.ShowAttachedFlyout(tb);
     }
 
     private void OnDataGridKeyUp(object? sender, KeyEventArgs e)

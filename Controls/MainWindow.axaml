@@ -59,9 +59,10 @@
             <!-- command bar -->
             <!-- Game List -->
             <DataGrid Grid.Row="1" x:Name="GameGrid" AutoGenerateColumns="True"
-                      IsReadOnly="False" SelectionMode="Extended" ColumnWidth="100" RowHeight="22"
+                      IsReadOnly="True" SelectionMode="Extended" ColumnWidth="100" RowHeight="22"
                       CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserSortColumns="False"
-                      ItemsSource="{Binding  Database.FilteredGames, Mode=TwoWay}" KeyUp="OnDataGridKeyUp">
+                      ItemsSource="{Binding  Database.FilteredGames, Mode=TwoWay}"
+                      KeyUp="OnDataGridKeyUp" DoubleTapped="OnDataCellDoubleTapped">
                 <DataGrid.Styles>
                     <Style Selector="DataGridColumnHeader">
                         <Setter Property="Template">
@@ -80,6 +81,35 @@
                                                    IsVisible="{TemplateBinding AreSeparatorsVisible}" />
                                     </Grid>
                                 </Border>
+                            </ControlTemplate>
+                        </Setter>
+                    </Style>
+                    <Style Selector="DataGridCell">
+                        <Setter Property="Template">
+                            <ControlTemplate>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                            HorizontalAlignment="Stretch">
+                                    <Rectangle Width="1" VerticalAlignment="Stretch" Fill="#ff383838" IsVisible="True" />
+                                    <TextBlock Name="CellTextBlock" IsEnabled="False" IsVisible="False"
+                                               Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content.Text}" />
+                                    <TextBlock Background="{TemplateBinding Background}"
+                                               VerticalAlignment="Center" Margin="6, 0, 2, 0"
+                                               Text="{Binding RelativeSource={RelativeSource Self}, ElementName=CellTextBox, Path=Text}">
+                                        <FlyoutBase.AttachedFlyout>
+                                            <Flyout Placement="Pointer"
+                                                    ShowMode="TransientWithDismissOnPointerMoveAway">
+                                                <StackPanel Orientation="Vertical">
+                                                    <TextBlock
+                                                        Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=OwningColumn.Header}"
+                                                        Margin="0, 0, 0, 10" FontWeight="Bold" />
+                                                    <TextBox Name="CellTextBox" Padding="10"
+                                                             MaxWidth="400" TextWrapping="Wrap"
+                                                             Text="{Binding ElementName=CellTextBlock, Path=Text, Mode=TwoWay}" />
+                                                </StackPanel>
+                                            </Flyout>
+                                        </FlyoutBase.AttachedFlyout>
+                                    </TextBlock>
+                                </StackPanel>
                             </ControlTemplate>
                         </Setter>
                     </Style>
