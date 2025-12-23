@@ -66,7 +66,7 @@ public class DataFile : INotifyPropertyChanged
             var curGame = Games.FirstOrDefault(g => g.Path == game.Path);
             if (curGame == null) continue;
 
-            // parse each game properties to look for a new value
+            // parse each game property to look for a new value
             foreach (var prop in game.GetType().GetProperties())
             {
                 var newPropValue = prop.GetValue(game);
@@ -127,7 +127,7 @@ public class DataFile : INotifyPropertyChanged
         // map cat/ver
         foreach (var game in dataFile.Games)
         {
-            var name = game.MameName ?? Path.GetFileNameWithoutExtension(game.Path);
+            var name = Path.GetFileNameWithoutExtension(game.MameName) ?? Path.GetFileNameWithoutExtension(game.Path);
             if (!catVer.Mapping.TryGetValue(name!, out var genre) && game.IsClone == "yes")
                 catVer.Mapping.TryGetValue(game.CloneOf!, out genre);
             if (!string.IsNullOrEmpty(genre)) game.Genre = genre;
